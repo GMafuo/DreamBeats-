@@ -1,0 +1,122 @@
+:root {
+  --color-primary: rgb(35,35,35,88%);
+  --color-secondary: #7B777A;
+}
+
+.dreambeats__musicControls {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.dreambeats__musicControls-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-primary);
+    width: 255px;
+    align-items: center;
+    justify-content: center;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.dreambeats__musicControls-container.show-volume {
+  animation: unround-corners 200ms forwards;
+}
+
+.dreambeats__musicControls-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 24px;
+  margin: 6px 0 6px;
+}
+
+.dreambeats__musicControls-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  col
+  transition: transform 0.2s ease;
+}
+
+.dreambeats__musicControls-button:hover {
+  transform: scale(1.1);
+}
+
+.dreambeats__musicControls_volume-slider {
+    position: absolute;
+    background-color: var(--color-primary);
+    border-radius: 0 0 10px 10px;
+    width: 255px;
+    top:32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: slide-down-volume 200ms;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.dreambeats__musicControls-volume {
+  width: 80%;
+  height: 4px;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  outline: none;
+}
+
+.dreambeats__musicControls-volume::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.dreambeats__musicControls-volume::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+@keyframes slide-down-volume {
+  from {
+    transform: translateY(-20%);
+  }
+  to {
+    transform: translateY(0%);
+  }
+}
+
+@keyframes unround-corners {
+  from {
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+  }
+  to {
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+  }
+}
+
+.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.hidden {
+  transform: translateY(-20px);
+  opacity: 0;
+  pointer-events: none;
+} 

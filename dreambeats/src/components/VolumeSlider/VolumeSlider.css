@@ -1,0 +1,7 @@
+.dreambeats__volumeSlider-container { 
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 80%;
+    padding: 10px 0;
+} 
