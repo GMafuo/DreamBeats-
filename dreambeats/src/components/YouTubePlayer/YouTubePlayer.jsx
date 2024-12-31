@@ -34,7 +34,6 @@ const YouTubePlayer = ({ onPlayerReady, isPlaying, currentStreamId, onStreamChan
       });
     };
 
-    // Fonction de chargement de l'API YouTube
     const loadYouTubeAPI = () => {
       if (window.YT) {
         initializePlayer();

@@ -136,7 +136,6 @@ const Controls = () => {
     }
   }, [currentStreamId, player, isPlaying]);
 
-  // Gestionnaire pour le mouvement de la souris sur toute la page
   useEffect(() => {
     let timeoutId;
 
@@ -145,7 +144,7 @@ const Controls = () => {
       clearTimeout(timeoutId);
       
       timeoutId = setTimeout(() => {
-        if (!showVolume) { // Ne pas cacher si le menu volume est ouvert
+        if (!showVolume) { 
           setIsVisible(false);
         }
       }, 3000);
