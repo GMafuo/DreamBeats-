@@ -8,7 +8,18 @@
   top: 20px;
   right: 20px;
   z-index: 1000;
-  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+  opacity: 1;
+  transition: opacity 0.3s ease-out;
+}
+
+.dreambeats__musicControls.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.dreambeats__musicControls.visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .dreambeats__musicControls-container {

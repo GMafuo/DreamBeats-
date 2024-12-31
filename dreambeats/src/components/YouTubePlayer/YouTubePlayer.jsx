@@ -1,21 +1,26 @@
 import React, { useEffect, useRef } from 'react';
+import { YOUTUBE_STREAMS } from '../../config/youtubeStreams';
 
-const YouTubePlayer = ({ onPlayerReady, isPlaying }) => {
+const YouTubePlayer = ({ onPlayerReady, isPlaying, currentStreamId, onStreamChange }) => {
   const playerRef = useRef(null);
 
   useEffect(() => {
-    // Fonction d'initialisation du lecteur
     const initializePlayer = () => {
       if (!window.YT || playerRef.current) return;
 
       playerRef.current = new window.YT.Player('youtube-player', {
         height: '0',
         width: '0',
-        videoId: 'jfKfPfyJRdk', // ID de la vidéo Lofi Girl
+        videoId: currentStreamId || YOUTUBE_STREAMS[0].id,
         playerVars: {
           autoplay: 0,
           controls: 0,
           disablekb: 1,
+          enablejsapi: 1,
+          origin: window.location.origin,
+          rel: 0,
+          modestbranding: 1,
+          iv_load_policy: 3
         },
         events: {
           onReady: (event) => {
@@ -56,7 +61,7 @@ const YouTubePlayer = ({ onPlayerReady, isPlaying }) => {
         playerRef.current = null;
       }
     };
-  }, [onPlayerReady]);
+  }, [onPlayerReady, currentStreamId]);
 
   return <div id="youtube-player" />;
 };

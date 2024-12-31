@@ -13,7 +13,9 @@ import {
 } from "react-icons/io5";
 import VolumeSlider from '../VolumeSlider/VolumeSlider';
 import YouTubePlayer from '../YouTubePlayer/YouTubePlayer';
+import { YOUTUBE_STREAMS, getNextStream, getPreviousStream } from '../../config/youtubeStreams';
 import './Controls.css';
+import NowPlaying from '../NowPlaying/NowPlaying';
 
 const iconProps = {
   size: 20,
@@ -29,6 +31,7 @@ const Controls = () => {
   const [volume, setVolume] = useState(35);
   const [timer, setTimer] = useState(null);
   const [player, setPlayer] = useState(null);
+  const [currentStreamId, setCurrentStreamId] = useState(YOUTUBE_STREAMS[0].id);
 
   const handleVolumeChange = useCallback((event, newValue) => {
     setVolume(newValue);
@@ -61,6 +64,20 @@ const Controls = () => {
     console.log('Player ready in Controls');
     setPlayer(ytPlayer);
   }, []);
+
+  const handleNextTrack = () => {
+    console.log('Next track clicked');
+    const nextStream = getNextStream(currentStreamId);
+    console.log('Next stream:', nextStream);
+    setCurrentStreamId(nextStream.id);
+  };
+
+  const handlePreviousTrack = () => {
+    console.log('Previous track clicked');
+    const previousStream = getPreviousStream(currentStreamId);
+    console.log('Previous stream:', previousStream);
+    setCurrentStreamId(previousStream.id);
+  };
 
   // Gestion de la lecture
   useEffect(() => {
@@ -102,46 +119,106 @@ const Controls = () => {
     }
   }, [isMuted, volume, player]);
 
+  useEffect(() => {
+    if (!player?.loadVideoById) {
+      console.log('Player not ready for video change');
+      return;
+    }
+
+    try {
+      console.log('Loading new video:', currentStreamId);
+      player.loadVideoById(currentStreamId);
+      if (isPlaying) {
+        player.playVideo();
+      }
+    } catch (error) {
+      console.error('Error changing video:', error);
+    }
+  }, [currentStreamId, player, isPlaying]);
+
+  // Gestionnaire pour le mouvement de la souris sur toute la page
+  useEffect(() => {
+    let timeoutId;
+
+    const handleMouseMove = () => {
+      setIsVisible(true);
+      clearTimeout(timeoutId);
+      
+      timeoutId = setTimeout(() => {
+        if (!showVolume) { // Ne pas cacher si le menu volume est ouvert
+          setIsVisible(false);
+        }
+      }, 3000);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      clearTimeout(timeoutId);
+    };
+  }, [showVolume]);
+
   return (
-    <div 
-      className={`dreambeats__musicControls ${isVisible ? 'visible' : 'hidden'}`}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      <YouTubePlayer onPlayerReady={handlePlayerReady} isPlaying={isPlaying} />
-      <div className={`dreambeats__musicControls-container ${showVolume ? 'show-volume' : ''}`}>
-        <div className="dreambeats__musicControls-buttons">
-          <BsFillSkipBackwardFill {...iconProps} className="dreambeats__musicControls-button" />
-          <div onClick={() => setIsPlaying(!isPlaying)} className="dreambeats__musicControls-button">
-            {isPlaying ? <FaPause {...iconProps} /> : <FaPlay {...iconProps} />}
+    <>
+      <div 
+        className={`dreambeats__musicControls ${isVisible ? 'visible' : 'hidden'}`}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <YouTubePlayer 
+          onPlayerReady={handlePlayerReady} 
+          isPlaying={isPlaying}
+          currentStreamId={currentStreamId}
+        />
+        <div className={`dreambeats__musicControls-container ${showVolume ? 'show-volume' : ''}`}>
+          <div className="dreambeats__musicControls-buttons">
+            <div 
+              onClick={handlePreviousTrack} 
+              className="dreambeats__musicControls-button"
+            >
+              <BsFillSkipBackwardFill {...iconProps} />
+            </div>
+            <div 
+              onClick={() => setIsPlaying(!isPlaying)} 
+              className="dreambeats__musicControls-button"
+            >
+              {isPlaying ? <FaPause {...iconProps} /> : <FaPlay {...iconProps} />}
+            </div>
+            <div 
+              onClick={handleNextTrack} 
+              className="dreambeats__musicControls-button"
+            >
+              <BsSkipForwardFill {...iconProps} />
+            </div>
+            <div 
+              onMouseEnter={() => setShowVolume(true)}
+              className="dreambeats__musicControls-button"
+            >
+              <IoVolumeMedium {...iconProps} />
+            </div>
+            <div 
+              onClick={() => setIsMuted(!isMuted)}
+              className="dreambeats__musicControls-button"
+            >
+              <IoVolumeMute {...iconProps} style={{ 
+                ...iconProps.style, 
+                color: isMuted ? '#4CAF50' : 'white' 
+              }} />
+            </div>
           </div>
-          <BsSkipForwardFill {...iconProps} className="dreambeats__musicControls-button" />
-          <div 
-            onMouseEnter={() => setShowVolume(true)}
-            className="dreambeats__musicControls-button"
-          >
-            <IoVolumeMedium {...iconProps} />
-          </div>
-          <div 
-            onClick={() => setIsMuted(!isMuted)}
-            className="dreambeats__musicControls-button"
-          >
-            <IoVolumeMute {...iconProps} style={{ 
-              ...iconProps.style, 
-              color: isMuted ? '#4CAF50' : 'white' 
-            }} />
-          </div>
+          {showVolume && (
+            <div className="dreambeats__musicControls_volume-slider">
+              <VolumeSlider 
+                value={isMuted ? 0 : volume}
+                onChange={handleVolumeChange}
+              />
+            </div>
+          )}
         </div>
-        {showVolume && (
-          <div className="dreambeats__musicControls_volume-slider">
-            <VolumeSlider 
-              value={isMuted ? 0 : volume}
-              onChange={handleVolumeChange}
-            />
-          </div>
-        )}
       </div>
-    </div>
+      <NowPlaying currentStreamId={currentStreamId} />
+    </>
   );
 };
 
