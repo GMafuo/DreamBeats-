@@ -16,6 +16,7 @@ import YouTubePlayer from '../YouTubePlayer/YouTubePlayer';
 import { YOUTUBE_STREAMS, getNextStream, getPreviousStream } from '../../config/youtubeStreams';
 import './Controls.css';
 import NowPlaying from '../NowPlaying/NowPlaying';
+import { RiFullscreenFill, RiFullscreenExitFill } from "react-icons/ri";
 
 const iconProps = {
   size: 20,
@@ -32,6 +33,7 @@ const Controls = () => {
   const [timer, setTimer] = useState(null);
   const [player, setPlayer] = useState(null);
   const [currentStreamId, setCurrentStreamId] = useState(YOUTUBE_STREAMS[0].id);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const handleVolumeChange = useCallback((event, newValue) => {
     setVolume(newValue);
@@ -158,6 +160,27 @@ const Controls = () => {
     };
   }, [showVolume]);
 
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+        setIsFullscreen(false);
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
   return (
     <>
       <div 
@@ -165,55 +188,70 @@ const Controls = () => {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <YouTubePlayer 
-          onPlayerReady={handlePlayerReady} 
-          isPlaying={isPlaying}
-          currentStreamId={currentStreamId}
-        />
-        <div className={`dreambeats__musicControls-container ${showVolume ? 'show-volume' : ''}`}>
-          <div className="dreambeats__musicControls-buttons">
-            <div 
-              onClick={handlePreviousTrack} 
-              className="dreambeats__musicControls-button"
-            >
-              <BsFillSkipBackwardFill {...iconProps} />
-            </div>
-            <div 
-              onClick={() => setIsPlaying(!isPlaying)} 
-              className="dreambeats__musicControls-button"
-            >
-              {isPlaying ? <FaPause {...iconProps} /> : <FaPlay {...iconProps} />}
-            </div>
-            <div 
-              onClick={handleNextTrack} 
-              className="dreambeats__musicControls-button"
-            >
-              <BsSkipForwardFill {...iconProps} />
-            </div>
-            <div 
-              onMouseEnter={() => setShowVolume(true)}
-              className="dreambeats__musicControls-button"
-            >
-              <IoVolumeMedium {...iconProps} />
-            </div>
-            <div 
-              onClick={() => setIsMuted(!isMuted)}
-              className="dreambeats__musicControls-button"
-            >
-              <IoVolumeMute {...iconProps} style={{ 
-                ...iconProps.style, 
-                color: isMuted ? '#4CAF50' : 'white' 
-              }} />
+        <div className="dreambeats__musicControls-wrapper">
+          <div className="dreambeats__musicControls-container">
+            <YouTubePlayer 
+              onPlayerReady={handlePlayerReady} 
+              isPlaying={isPlaying}
+              currentStreamId={currentStreamId}
+            />
+            <div className={`dreambeats__musicControls-container ${showVolume ? 'show-volume' : ''}`}>
+              <div className="dreambeats__musicControls-buttons">
+                <div 
+                  onClick={handlePreviousTrack} 
+                  className="dreambeats__musicControls-button"
+                >
+                  <BsFillSkipBackwardFill {...iconProps} />
+                </div>
+                <div 
+                  onClick={() => setIsPlaying(!isPlaying)} 
+                  className="dreambeats__musicControls-button"
+                >
+                  {isPlaying ? <FaPause {...iconProps} /> : <FaPlay {...iconProps} />}
+                </div>
+                <div 
+                  onClick={handleNextTrack} 
+                  className="dreambeats__musicControls-button"
+                >
+                  <BsSkipForwardFill {...iconProps} />
+                </div>
+                <div 
+                  onMouseEnter={() => setShowVolume(true)}
+                  className="dreambeats__musicControls-button"
+                >
+                  <IoVolumeMedium {...iconProps} />
+                </div>
+                <div 
+                  onClick={() => setIsMuted(!isMuted)}
+                  className="dreambeats__musicControls-button"
+                >
+                  <IoVolumeMute {...iconProps} style={{ 
+                    ...iconProps.style, 
+                    color: isMuted ? '#4CAF50' : 'white' 
+                  }} />
+                </div>
+              </div>
+              {showVolume && (
+                <div className="dreambeats__musicControls_volume-slider">
+                  <VolumeSlider 
+                    value={isMuted ? 0 : volume}
+                    onChange={handleVolumeChange}
+                  />
+                </div>
+              )}
             </div>
           </div>
-          {showVolume && (
-            <div className="dreambeats__musicControls_volume-slider">
-              <VolumeSlider 
-                value={isMuted ? 0 : volume}
-                onChange={handleVolumeChange}
-              />
-            </div>
-          )}
+          
+          <div 
+            className="dreambeats__musicControls-button fullscreen-button"
+            onClick={toggleFullscreen}
+          >
+            {isFullscreen ? (
+              <RiFullscreenExitFill {...iconProps} />
+            ) : (
+              <RiFullscreenFill {...iconProps} />
+            )}
+          </div>
         </div>
       </div>
       <NowPlaying currentStreamId={currentStreamId} />
