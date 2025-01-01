@@ -17,6 +17,7 @@ import { YOUTUBE_STREAMS, getNextStream, getPreviousStream } from '../../config/
 import './Controls.css';
 import NowPlaying from '../NowPlaying/NowPlaying';
 import { RiFullscreenFill, RiFullscreenExitFill } from "react-icons/ri";
+import Clock from '../Clock/Clock';
 
 const iconProps = {
   size: 20,
@@ -241,11 +242,8 @@ const Controls = () => {
               )}
             </div>
           </div>
-          
-          <div 
-            className="dreambeats__musicControls-button fullscreen-button"
-            onClick={toggleFullscreen}
-          >
+          <Clock />
+          <div className="dreambeats__musicControls-button fullscreen-button" onClick={toggleFullscreen}>
             {isFullscreen ? (
               <RiFullscreenExitFill {...iconProps} />
             ) : (

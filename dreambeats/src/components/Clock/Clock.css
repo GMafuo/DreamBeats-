@@ -1,0 +1,15 @@
+.dreambeats__clock {
+  background-color: rgba(35, 35, 35, 0.88);
+  border-radius: 10px;
+  color: white;
+  width: 108px;
+  height: 32px;
+  font-size: 1.2rem;
+  font-weight: 500;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+} 
