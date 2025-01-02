@@ -1,0 +1,56 @@
+.dreambeats__scene-selector {
+  position: fixed;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  background: rgba(35, 35, 35, 0.88);
+  backdrop-filter: blur(10px);
+  padding: 15px;
+  border-radius: 15px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.dreambeats__scene-selector-container {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  padding: 5px;
+  max-width: 80vw;
+}
+
+.scene-item {
+  cursor: pointer;
+  transition: transform 0.2s;
+  position: relative;
+}
+
+.scene-item:hover {
+  transform: scale(1.05);
+}
+
+.scene-item img {
+  width: 120px;
+  height: 67.5px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.scene-item.active {
+  border: 2px solid #1DB954;
+  border-radius: 10px;
+}
+
+.scene-name {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px;
+  font-size: 12px;
+  text-align: center;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+} 
