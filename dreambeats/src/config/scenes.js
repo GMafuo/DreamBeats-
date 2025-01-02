@@ -17,5 +17,5 @@ export const SCENES = [
     video: trainGirlVideo,
     image: trainGirlImage,
     theme: 'cool'
-  }
+  },
 ]; 

@@ -1,6 +1,6 @@
 .dreambeats__scene-selector {
   position: fixed;
-  bottom: 120px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
@@ -8,37 +8,47 @@
   backdrop-filter: blur(10px);
   padding: 15px;
   border-radius: 15px;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: 0px 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .dreambeats__scene-selector-container {
   display: flex;
-  gap: 15px;
-  overflow-x: auto;
-  padding: 5px;
-  max-width: 80vw;
+  gap: 12px;
+  transition: transform 0.5s ease;
 }
 
 .scene-item {
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: all 0.3s ease;
   position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  width: 200px;
+  height: 112.5px;
+  flex-shrink: 0;
 }
 
 .scene-item:hover {
-  transform: scale(1.05);
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
 .scene-item img {
-  width: 120px;
-  height: 67.5px;
-  border-radius: 8px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
 .scene-item.active {
-  border: 2px solid #1DB954;
-  border-radius: 10px;
+  box-shadow: 0 0 0 3px #1DB954;
+}
+
+.scene-item.active img {
+  filter: brightness(1.1);
 }
 
 .scene-name {
@@ -46,11 +56,90 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
   color: white;
-  padding: 4px;
-  font-size: 12px;
+  padding: 15px 10px 8px;
+  font-size: 14px;
   text-align: center;
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
+}
+
+.scene-item:hover .scene-name {
+  padding-bottom: 20px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent);
+}
+
+/* Personnalisation de la barre de défilement */
+.dreambeats__scene-selector-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.dreambeats__scene-selector-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.dreambeats__scene-selector-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.dreambeats__scene-selector-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Ajout d'un media query pour gérer les petits écrans */
+@media screen and (max-height: 800px) {
+  .dreambeats__scene-selector {
+    bottom: 100px;
+  }
+}
+
+.nav-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+  padding: 0;
+  margin: 0 -6px;
+}
+
+.nav-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.nav-button.prev {
+  margin-right: 5px;
+}
+
+.nav-button.next {
+  margin-left: 5px;
+}
+
+.nav-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Animation pour le slide */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.scene-item {
+  animation: slideIn 0.3s ease forwards;
 } 
