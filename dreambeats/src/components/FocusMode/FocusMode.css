@@ -55,3 +55,15 @@
 .cr.function * {
   line-height: 27px;
 }
+
+.dreambeats__focus-mode-text {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-size: 3rem;
+  z-index: 2;
+  pointer-events: none;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}

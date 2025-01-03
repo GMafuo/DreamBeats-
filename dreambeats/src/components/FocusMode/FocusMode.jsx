@@ -14,6 +14,7 @@ console.log('datGuiPath:', datGuiPath);
 const FocusMode = () => {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
+  const textRef = useRef(null);
 
   useEffect(() => {
     const cleanup = () => {
@@ -32,9 +33,13 @@ const FocusMode = () => {
       }
 
       document.querySelectorAll('.dg.ac').forEach(gui => gui.remove());
-
+      
       if (containerRef.current) {
+        const textElement = containerRef.current.querySelector('.dreambeats__focus-mode-text');
         containerRef.current.innerHTML = '';
+        if (textElement) {
+          containerRef.current.appendChild(textElement);
+        }
       }
     };
 
@@ -44,6 +49,8 @@ const FocusMode = () => {
     canvasRef.current = newCanvas;
     newCanvas.style.width = '100%';
     newCanvas.style.height = '100vh';
+    newCanvas.style.position = 'absolute';
+    newCanvas.style.zIndex = '1';
 
     window.canvas = newCanvas;
     window.__fluidCanvas = newCanvas;
@@ -70,7 +77,6 @@ const FocusMode = () => {
 
     const initFluidSimulation = async () => {
       try {
-        console.log('Tentative de chargement de:', datGuiPath);
         await loadScriptOnce(datGuiPath);
         await loadScriptOnce(`${BASE_PATH}/assets/script.js`);
       } catch (error) {
@@ -84,7 +90,9 @@ const FocusMode = () => {
   }, []);
 
   return (
-    <div ref={containerRef} className="dreambeats__focus-mode" />
+    <div ref={containerRef} className="dreambeats__focus-mode">
+      <h1 ref={textRef} className="dreambeats__focus-mode-text">HelloWorld</h1>
+    </div>
   );
 };
 
