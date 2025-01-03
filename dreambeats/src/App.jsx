@@ -3,6 +3,7 @@ import Background from './components/Background/Background';
 import Controls from './components/Controls/Controls';
 import SceneSelector from './components/SceneSelector/SceneSelector';
 import ModeToggle from './components/ModeToggle/ModeToggle';
+import FocusMode from './components/FocusMode/FocusMode';
 import { useAppContext } from './context/AppContext';
 
 function AppContent() {
@@ -10,9 +11,15 @@ function AppContent() {
 
   return (
     <div className="dreambeats">
-      <Background />
-      <Controls />
-      <SceneSelector />
+      {appMode === 'ambient' ? (
+        <>
+          <Background />
+          <Controls />
+          <SceneSelector />
+        </>
+      ) : (
+        <FocusMode />
+      )}
       <ModeToggle 
         currentMode={appMode}
         onModeChange={setAppMode}
