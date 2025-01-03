@@ -1,6 +1,15 @@
 import React, { useEffect, useRef } from 'react';
 import './FocusMode.css';
 
+console.log('import.meta.env:', import.meta.env);
+console.log('BASE_URL:', import.meta.env.BASE_URL);
+
+const BASE_PATH = import.meta.env.BASE_URL.replace(/\/$/, '');
+const datGuiPath = `${BASE_PATH}/src/assets/dat.gui.min.js`;
+
+console.log('BASE_PATH final:', BASE_PATH);
+console.log('datGuiPath final:', datGuiPath);
+
 const FocusMode = () => {
   const containerRef = useRef(null);
   const canvasRef = useRef(null);
@@ -60,8 +69,9 @@ const FocusMode = () => {
 
     const initFluidSimulation = async () => {
       try {
-        await loadScriptOnce('src/components/FocusMode/dat.gui.min.js');
-        await loadScriptOnce('src/components/FocusMode/script.js');
+        console.log('Tentative de chargement de:', datGuiPath);
+        await loadScriptOnce(datGuiPath);
+        await loadScriptOnce(`${BASE_PATH}/src/assets/script.js`);
       } catch (error) {
         console.error('💥 Erreur de chargement:', error);
       }
