@@ -5,7 +5,7 @@ console.log('import.meta.env:', import.meta.env);
 console.log('BASE_URL:', import.meta.env.BASE_URL);
 
 const BASE_PATH = import.meta.env.PROD ? '/DreamBeats-' : '';
-const datGuiPath = `${BASE_PATH}/src/assets/dat.gui.min.js`;
+const datGuiPath = `${BASE_PATH}/assets/dat.gui.min.js`;
 
 console.log('Environment:', import.meta.env.MODE);
 console.log('BASE_PATH:', BASE_PATH);
@@ -70,8 +70,9 @@ const FocusMode = () => {
 
     const initFluidSimulation = async () => {
       try {
+        console.log('Tentative de chargement de:', datGuiPath);
         await loadScriptOnce(datGuiPath);
-        await loadScriptOnce(`${BASE_PATH}/src/assets/script.js`);
+        await loadScriptOnce(`${BASE_PATH}/assets/script.js`);
       } catch (error) {
         console.error('💥 Erreur de chargement:', error);
       }
