@@ -13,14 +13,15 @@ const YouTubePlayer = ({ onPlayerReady, isPlaying, currentStreamId, onStreamChan
         width: '0',
         videoId: currentStreamId || YOUTUBE_STREAMS[0].id,
         playerVars: {
-          autoplay: 0,
+          autoplay: 1,
           controls: 0,
           disablekb: 1,
           enablejsapi: 1,
           origin: window.location.origin,
           rel: 0,
           modestbranding: 1,
-          iv_load_policy: 3
+          iv_load_policy: 3,
+          playsinline: 1
         },
         events: {
           onReady: (event) => {

@@ -87,60 +87,45 @@ const Controls = () => {
 
   // Gestion de la lecture
   useEffect(() => {
-    if (!player?.playVideo) {
-      console.log('Player not ready for playback');
-      return;
-    }
+    if (!player) return;
     
     try {
-      console.log('Attempting to control playback:', isPlaying);
+      console.log('État de lecture actuel:', isPlaying);
       if (isPlaying) {
         player.playVideo();
-        player.setVolume(volume);
       } else {
         player.pauseVideo();
       }
     } catch (error) {
-      console.error('Error controlling YouTube player:', error);
+      console.error('Erreur lors du contrôle de la lecture:', error);
     }
-  }, [isPlaying, player, volume]);
+  }, [isPlaying, player]);
 
   // Gestion du volume et du mute
   useEffect(() => {
-    if (!player?.mute) {
-      console.log('Player not ready for volume control');
-      return;
-    }
-
+    if (!player) return;
+    
     try {
-      console.log('Attempting to control volume:', { isMuted, volume });
-      if (isMuted) {
-        player.mute();
-      } else {
-        player.unMute();
-        player.setVolume(volume);
-      }
+      player.setVolume(volume);
     } catch (error) {
-      console.error('Error controlling YouTube player volume:', error);
+      console.error('Erreur lors du contrôle du volume:', error);
     }
-  }, [isMuted, volume, player]);
+  }, [volume, player]);
 
   useEffect(() => {
-    if (!player?.loadVideoById) {
-      console.log('Player not ready for video change');
-      return;
-    }
+    if (!player) return;
 
     try {
-      console.log('Loading new video:', currentStreamId);
-      player.loadVideoById(currentStreamId);
-      if (isPlaying) {
-        player.playVideo();
-      }
+      console.log('Chargement nouvelle vidéo:', currentStreamId);
+      player.loadVideoById({
+        videoId: currentStreamId,
+        startSeconds: 0,
+        suggestedQuality: 'default'
+      });
     } catch (error) {
-      console.error('Error changing video:', error);
+      console.error('Erreur lors du changement de vidéo:', error);
     }
-  }, [currentStreamId, player, isPlaying]);
+  }, [currentStreamId, player]);
 
   useEffect(() => {
     let timeoutId;
