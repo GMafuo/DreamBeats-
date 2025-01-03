@@ -76,6 +76,7 @@ const Controls = () => {
     const nextStream = getNextStream(currentStreamId);
     console.log('Next stream:', nextStream);
     setCurrentStreamId(nextStream.id);
+    setIsPlaying(true);
   };
 
   const handlePreviousTrack = () => {
@@ -83,6 +84,7 @@ const Controls = () => {
     const previousStream = getPreviousStream(currentStreamId);
     console.log('Previous stream:', previousStream);
     setCurrentStreamId(previousStream.id);
+    setIsPlaying(true);
   };
 
   // Gestion de la lecture
@@ -103,14 +105,23 @@ const Controls = () => {
 
   // Gestion du volume et du mute
   useEffect(() => {
-    if (!player) return;
-    
-    try {
-      player.setVolume(volume);
-    } catch (error) {
-      console.error('Erreur lors du contrôle du volume:', error);
+    if (!player) {
+      console.log('Player not ready for volume control');
+      return;
     }
-  }, [volume, player]);
+
+    try {
+      console.log('Attempting to control volume:', { isMuted, volume });
+      if (isMuted) {
+        player.mute();
+      } else {
+        player.unMute();
+        player.setVolume(volume);
+      }
+    } catch (error) {
+      console.error('Error controlling YouTube player volume:', error);
+    }
+  }, [isMuted, volume, player]);
 
   useEffect(() => {
     if (!player) return;
@@ -174,6 +185,11 @@ const Controls = () => {
     setShowScenes(!showScenes);
   };
 
+  const handleMuteClick = () => {
+    console.log('Mute clicked, current state:', isMuted);
+    setIsMuted(!isMuted);
+  };
+
   return (
     <>
       <div 
@@ -215,7 +231,7 @@ const Controls = () => {
                   <IoVolumeMedium {...iconProps} />
                 </div>
                 <div 
-                  onClick={() => setIsMuted(!isMuted)}
+                  onClick={handleMuteClick}
                   className="dreambeats__musicControls-button"
                 >
                   <IoVolumeMute {...iconProps} style={{ 
