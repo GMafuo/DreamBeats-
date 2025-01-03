@@ -6,6 +6,7 @@ const AppContext = createContext();
 export const AppProvider = ({ children }) => {
   const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [appMode, setAppMode] = useState('ambient');
 
   const getCurrentScene = useCallback(() => {
     return SCENES[currentSceneIndex];
@@ -17,7 +18,9 @@ export const AppProvider = ({ children }) => {
       currentSceneIndex, 
       setCurrentSceneIndex,
       isLoading,
-      setIsLoading 
+      setIsLoading,
+      appMode,
+      setAppMode,
     }}>
       {children}
     </AppContext.Provider>
