@@ -50,7 +50,7 @@
   transform: translateX(45px);
 }
 
-@media screen and (max-height: 800px) {
+@media screen and (max-height: 600px) {
   .dreambeats__mode-toggle {
     bottom: 100px;
   }
