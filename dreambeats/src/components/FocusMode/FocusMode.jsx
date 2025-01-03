@@ -4,11 +4,12 @@ import './FocusMode.css';
 console.log('import.meta.env:', import.meta.env);
 console.log('BASE_URL:', import.meta.env.BASE_URL);
 
-const BASE_PATH = import.meta.env.BASE_URL.replace(/\/$/, '');
+const BASE_PATH = import.meta.env.PROD ? '/DreamBeats-' : '';
 const datGuiPath = `${BASE_PATH}/src/assets/dat.gui.min.js`;
 
-console.log('BASE_PATH final:', BASE_PATH);
-console.log('datGuiPath final:', datGuiPath);
+console.log('Environment:', import.meta.env.MODE);
+console.log('BASE_PATH:', BASE_PATH);
+console.log('datGuiPath:', datGuiPath);
 
 const FocusMode = () => {
   const containerRef = useRef(null);
@@ -69,7 +70,6 @@ const FocusMode = () => {
 
     const initFluidSimulation = async () => {
       try {
-        console.log('Tentative de chargement de:', datGuiPath);
         await loadScriptOnce(datGuiPath);
         await loadScriptOnce(`${BASE_PATH}/src/assets/script.js`);
       } catch (error) {
