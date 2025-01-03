@@ -18,6 +18,8 @@ import './Controls.css';
 import NowPlaying from '../NowPlaying/NowPlaying';
 import { RiFullscreenFill, RiFullscreenExitFill } from "react-icons/ri";
 import Clock from '../Clock/Clock';
+import SceneButton from '../SceneButton/SceneButton';
+import SceneSelector from '../SceneSelector/SceneSelector';
 
 const iconProps = {
   size: 20,
@@ -35,6 +37,7 @@ const Controls = () => {
   const [player, setPlayer] = useState(null);
   const [currentStreamId, setCurrentStreamId] = useState(YOUTUBE_STREAMS[0].id);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showScenes, setShowScenes] = useState(false);
 
   const handleVolumeChange = useCallback((event, newValue) => {
     setVolume(newValue);
@@ -182,6 +185,10 @@ const Controls = () => {
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
+  const handleToggleScenes = () => {
+    setShowScenes(!showScenes);
+  };
+
   return (
     <>
       <div 
@@ -242,6 +249,7 @@ const Controls = () => {
               )}
             </div>
           </div>
+          <SceneButton onToggleScenes={handleToggleScenes} />
           <Clock />
           <div className="dreambeats__musicControls-button fullscreen-button" onClick={toggleFullscreen}>
             {isFullscreen ? (
@@ -253,6 +261,7 @@ const Controls = () => {
         </div>
       </div>
       <NowPlaying currentStreamId={currentStreamId} />
+      <SceneSelector isVisible={showScenes} />
     </>
   );
 };

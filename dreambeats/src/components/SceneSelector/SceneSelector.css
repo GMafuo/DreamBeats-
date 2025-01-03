@@ -13,6 +13,27 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  transition: all 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, 20px);
+}
+
+.dreambeats__scene-selector.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 
 .dreambeats__scene-selector-container {

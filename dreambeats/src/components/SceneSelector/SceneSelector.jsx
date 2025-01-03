@@ -4,7 +4,7 @@ import { SCENES } from '../../config/scenes';
 import { useAppContext } from '../../context/AppContext';
 import { IoChevronBackOutline, IoChevronForwardOutline } from 'react-icons/io5';
 
-const SceneSelector = () => {
+const SceneSelector = ({ isVisible }) => {
   const { getCurrentScene, setCurrentSceneIndex } = useAppContext();
   const [startIndex, setStartIndex] = useState(0);
   const currentScene = getCurrentScene();
@@ -37,7 +37,7 @@ const SceneSelector = () => {
   const showNextButton = startIndex + 2 < SCENES.length;
 
   return (
-    <div className="dreambeats__scene-selector">
+    <div className={`dreambeats__scene-selector ${isVisible ? 'visible' : ''}`}>
       {showPrevButton && (
         <button className="nav-button prev" onClick={slidePrev} type="button">
           <IoChevronBackOutline size={20} />
