@@ -190,6 +190,23 @@ const Controls = () => {
     setIsMuted(!isMuted);
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const selector = document.querySelector('.dreambeats__scene-selector');
+      const button = document.querySelector('.dreambeats__scene-button');
+      
+      if (showScenes && selector && !selector.contains(event.target) && !button.contains(event.target)) {
+        setShowScenes(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showScenes]);
+
   return (
     <>
       <div 
