@@ -40,3 +40,20 @@
 .read-the-docs {
   color: #888;
 }
+
+.main-logo {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 225px;
+  height: auto;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  z-index: 999;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.main-logo:hover {
+  transform: scale(1.1);
+}

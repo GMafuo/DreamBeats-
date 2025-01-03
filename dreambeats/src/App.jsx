@@ -5,12 +5,19 @@ import SceneSelector from './components/SceneSelector/SceneSelector';
 import ModeToggle from './components/ModeToggle/ModeToggle';
 import FocusMode from './components/FocusMode/FocusMode';
 import { useAppContext } from './context/AppContext';
+import logo from './assets/dreambeats-logo.png';
+import './App.css';
 
 function AppContent() {
   const { appMode, setAppMode } = useAppContext();
 
   return (
     <div className="dreambeats">
+      <img 
+        src={logo} 
+        alt="DreamBeats"
+        className="main-logo"
+      />
       {appMode === 'ambient' ? (
         <>
           <Background />
