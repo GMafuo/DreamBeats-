@@ -269,13 +269,6 @@ const Controls = () => {
           </div>
           <SceneButton onToggleScenes={handleToggleScenes} />
           <Clock />
-          <div className="dreambeats__musicControls-button fullscreen-button" onClick={toggleFullscreen}>
-            {isFullscreen ? (
-              <RiFullscreenExitFill {...iconProps} />
-            ) : (
-              <RiFullscreenFill {...iconProps} />
-            )}
-          </div>
         </div>
       </div>
       <NowPlaying currentStreamId={currentStreamId} />
