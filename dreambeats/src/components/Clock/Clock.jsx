@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useAppContext } from '../../context/AppContext';
 import './Clock.css';
 
 const Clock = () => {
   const [time, setTime] = useState(new Date());
+  const { clockFormat } = useAppContext();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -16,7 +18,7 @@ const Clock = () => {
     return date.toLocaleTimeString('fr-FR', {
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false
+      hour12: clockFormat === '12h'
     });
   };
 
