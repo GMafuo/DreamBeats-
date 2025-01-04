@@ -253,7 +253,7 @@ const Controls = () => {
                 >
                   <IoVolumeMute {...iconProps} style={{ 
                     ...iconProps.style, 
-                    color: isMuted ? '#4CAF50' : 'white' 
+                    color: isMuted ? '#4A8B8C' : 'white' 
                   }} />
                 </div>
               </div>

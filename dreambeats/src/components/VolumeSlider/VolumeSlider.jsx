@@ -4,7 +4,7 @@ import { styled } from "@mui/material/styles";
 import "./VolumeSlider.css";
 
 const StyledSlider = styled(Slider)({
-  color: "#4CAF50",
+  color: "#4A8B8C",
   height: 8,
   "& .MuiSlider-track": {
     border: "none",
