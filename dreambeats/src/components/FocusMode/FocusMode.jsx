@@ -2,15 +2,18 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { IoRefreshOutline, IoExpand } from 'react-icons/io5';
 import { IoHeartOutline, IoHeart } from 'react-icons/io5';
 import './FocusMode.css';
+import { useAppContext } from '../../context/AppContext';
 
 const FocusMode = () => {
+  const { focusTime, shortBreakTime } = useAppContext();
   const [mode, setMode] = useState('focus');
-  const [timeLeft, setTimeLeft] = useState(60); // 1 minute en secondes
+  const [timeLeft, setTimeLeft] = useState(focusTime * 60);
   const [isActive, setIsActive] = useState(false);
   const [autoSwitch, setAutoSwitch] = useState(false);
-  const [sessionCount, setSessionCount] = useState(0); // Compteur de sessions
-  const TOTAL_SESSIONS = 4; // Nombre total de sessions
+  const [sessionCount, setSessionCount] = useState(0);
+  const TOTAL_SESSIONS = 4;
   const [isSpinning, setIsSpinning] = useState(false);
+  const isBreak = mode === 'break';
   const [quote] = useState({
     text: "Success is not final, failure is not fatal. It is the courage to continue that counts.",
     author: "Winston Churchill"
@@ -19,9 +22,9 @@ const FocusMode = () => {
   const audioPath = '/assets/notification.mp3';
   const [audio] = useState(new Audio(audioPath));
 
-  // Durées en secondes (modifiées pour les tests)
-  const FOCUS_TIME = 60; // 1 minute
-  const BREAK_TIME = 60; // 1 minute
+  // Durées en secondes
+  const FOCUS_TIME = focusTime * 60;
+  const BREAK_TIME = shortBreakTime * 60;
 
   const playNotificationSound = () => {
     audio.currentTime = 0; // Remettre le son au début
@@ -85,7 +88,7 @@ const FocusMode = () => {
     }
 
     return () => clearInterval(interval);
-  }, [isActive, timeLeft, handleTimerComplete]);
+  }, [isActive, timeLeft, isBreak, sessionCount]);
 
   // Gérer le changement de mode manuel
   const handleModeChange = (newMode) => {
@@ -179,6 +182,10 @@ const FocusMode = () => {
       </span>
     ));
   };
+
+  useEffect(() => {
+    setTimeLeft(mode === 'focus' ? FOCUS_TIME : BREAK_TIME);
+  }, [focusTime, shortBreakTime, mode, FOCUS_TIME, BREAK_TIME]);
 
   return (
     <div className="dreambeats__focus-mode">
