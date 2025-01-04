@@ -4,6 +4,18 @@ import { IoHeartOutline, IoHeart } from 'react-icons/io5';
 import './FocusMode.css';
 import { useAppContext } from '../../context/AppContext';
 
+console.log('import.meta.env:', import.meta.env);
+console.log('BASE_URL:', import.meta.env.BASE_URL);
+
+const BASE_PATH = import.meta.env.PROD ? '/DreamBeats-' : '';
+const datGuiPath = `${BASE_PATH}/assets/dat.gui.min.js`;
+
+console.log('Environment:', import.meta.env.MODE);
+console.log('BASE_PATH:', BASE_PATH);
+console.log('datGuiPath:', datGuiPath);
+
+const notificationSound = `${BASE_PATH}/assets/notification.mp3`;
+
 const FocusMode = () => {
   const { focusTime, shortBreakTime } = useAppContext();
   const [mode, setMode] = useState('focus');
@@ -130,8 +142,6 @@ const FocusMode = () => {
     document.body.appendChild(canvas);
 
     window.getFluidCanvas = () => canvas;
-
-    const datGuiPath = '/assets/dat.gui.min.js';
     
     const loadScriptOnce = (src) => {
       return new Promise((resolve, reject) => {
@@ -151,7 +161,7 @@ const FocusMode = () => {
     const initFluidSimulation = async () => {
       try {
         await loadScriptOnce(datGuiPath);
-        await loadScriptOnce(`${window.location.origin}/assets/script.js`);
+        await loadScriptOnce(`${BASE_PATH}/assets/script.js`);
       } catch (error) {
         console.error('💥 Erreur de chargement:', error);
       }
@@ -186,6 +196,16 @@ const FocusMode = () => {
   useEffect(() => {
     setTimeLeft(mode === 'focus' ? FOCUS_TIME : BREAK_TIME);
   }, [focusTime, shortBreakTime, mode, FOCUS_TIME, BREAK_TIME]);
+
+  useEffect(() => {
+    const audio = new Audio(notificationSound);
+    
+    if (isActive && timeLeft === 0) {
+      audio.play().catch(error => {
+        console.error('Erreur lors de la lecture du son:', error);
+      });
+    }
+  }, [isActive, timeLeft, mode]);
 
   return (
     <div className="dreambeats__focus-mode">
