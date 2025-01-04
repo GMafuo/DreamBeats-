@@ -31,8 +31,7 @@ const FocusMode = () => {
     author: "Winston Churchill"
   });
   
-  const audioPath = '/assets/notification.mp3';
-  const [audio] = useState(new Audio(audioPath));
+  const [audio] = useState(new Audio(notificationSound));
 
   // Durées en secondes
   const FOCUS_TIME = focusTime * 60;
