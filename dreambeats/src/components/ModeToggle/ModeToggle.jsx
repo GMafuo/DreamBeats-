@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IoMusicalNotes, IoTimer, IoSettingsSharp } from "react-icons/io5";
 import { RiFullscreenFill, RiFullscreenExitFill } from "react-icons/ri";
 import { useFullscreen } from '../../hooks/useFullscreen';
@@ -9,6 +9,7 @@ import './ModeToggle.css';
 const ModeToggle = ({ currentMode, onModeChange }) => {
   const { isFullscreen, toggleFullscreen } = useFullscreen();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   
   const { 
     clockFormat, 
@@ -19,9 +20,31 @@ const ModeToggle = ({ currentMode, onModeChange }) => {
     updateShortBreakTime
   } = useAppContext();
 
+  useEffect(() => {
+    let timeoutId;
+
+    const handleMouseMove = () => {
+      setIsVisible(true);
+      clearTimeout(timeoutId);
+      
+      timeoutId = setTimeout(() => {
+        if (!isSettingsOpen) {
+          setIsVisible(false);
+        }
+      }, 3000);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      clearTimeout(timeoutId);
+    };
+  }, [isSettingsOpen]);
+
   return (
     <>
-      <div className="dreambeats__mode-toggle">
+      <div className={`dreambeats__mode-toggle ${isVisible ? 'visible' : 'hidden'}`}>
         <div className="toggle-container">
           <button 
             className={`mode-button ${currentMode === 'ambient' ? 'active' : ''}`}

@@ -5,6 +5,18 @@
   display: flex;
   align-items: center;
   z-index: 1000;
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.dreambeats__mode-toggle.hidden {
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+}
+
+.dreambeats__mode-toggle.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .toggle-container {
