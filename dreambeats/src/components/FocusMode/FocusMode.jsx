@@ -249,7 +249,7 @@ const FocusMode = () => {
       </div>
 
       <div className="focus-title">I'm focusing on</div>
-      <div className="focus-subtitle">Creating the best extension ever</div>
+      <div className="focus-subtitle">Creating lofi site</div>
 
       <div className="focus-quote">
         Success is not final, failure is not fatal: it is the courage to continue that counts
