@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './NowPlaying.css';
 import { YOUTUBE_STREAMS } from '../../config/youtubeStreams';
 
-const NowPlaying = ({ currentStreamId }) => {
+const NowPlaying = ({ currentStreamId, hideOnMobile = false }) => {
   const [isVisible, setIsVisible] = useState(true);
   const currentStream = YOUTUBE_STREAMS.find(stream => stream.id === currentStreamId);
 
@@ -27,7 +27,11 @@ const NowPlaying = ({ currentStreamId }) => {
   }, []);
 
   return (
-    <div className={`dreambeats__nowPlaying ${isVisible ? 'visible' : 'hidden'}`}>
+    <div className={`
+      dreambeats__nowPlaying 
+      ${isVisible ? 'visible' : 'hidden'} 
+      ${hideOnMobile ? 'hide-on-mobile' : ''}
+    `}>
       <div className="dreambeats__nowPlaying-hybrid">
         <div className="dreambeats__nowPlaying-hybrid-wave"></div>
         <div className="dreambeats__nowPlaying-hybrid-icon">▶</div>
@@ -39,6 +43,10 @@ const NowPlaying = ({ currentStreamId }) => {
       </div>
     </div>
   );
+};
+
+NowPlaying.defaultProps = {
+  hideOnMobile: false
 };
 
 export default NowPlaying; 

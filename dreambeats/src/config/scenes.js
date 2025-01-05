@@ -18,4 +18,11 @@ export const SCENES = [
     image: trainGirlImage,
     theme: 'cool'
   },
+  {
+    id: 'train-girl',
+    title: 'Train Girl',
+    video: trainGirlVideo,
+    image: trainGirlImage,
+    theme: 'cool'
+  }
 ]; 

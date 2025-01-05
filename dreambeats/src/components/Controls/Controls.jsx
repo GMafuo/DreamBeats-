@@ -38,6 +38,7 @@ const Controls = () => {
   const [currentStreamId, setCurrentStreamId] = useState(YOUTUBE_STREAMS[0].id);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showScenes, setShowScenes] = useState(false);
+  const [hideNowPlaying, setHideNowPlaying] = useState(false);
 
   const handleVolumeChange = useCallback((event, newValue) => {
     setVolume(newValue);
@@ -207,6 +208,10 @@ const Controls = () => {
     };
   }, [showScenes]);
 
+  const handleSceneVisibilityChange = (isVisible) => {
+    setHideNowPlaying(isVisible);
+  };
+
   return (
     <>
       <div 
@@ -271,8 +276,14 @@ const Controls = () => {
           <Clock />
         </div>
       </div>
-      <NowPlaying currentStreamId={currentStreamId} />
-      <SceneSelector isVisible={showScenes} />
+      <NowPlaying 
+        currentStreamId={currentStreamId} 
+        hideOnMobile={hideNowPlaying}
+      />
+      <SceneSelector 
+        isVisible={showScenes} 
+        onVisibilityChange={handleSceneVisibilityChange}
+      />
     </>
   );
 };

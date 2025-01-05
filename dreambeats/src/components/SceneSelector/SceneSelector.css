@@ -163,4 +163,60 @@
 
 .scene-item {
   animation: slideIn 0.3s ease forwards;
+}
+
+@media screen and (max-width: 768px) {
+  .dreambeats__scene-selector {
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(35, 35, 35, 0.95);
+    border-radius: 12px;
+    padding: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+  }
+
+  .dreambeats__scene-selector-container {
+    gap: 6px;
+  }
+
+  .scene-item {
+    width: 120px;
+    height: 67.5px;
+    border-radius: 6px;
+  }
+
+  .scene-item .scene-name {
+    padding: 4px;
+    font-size: 0.7rem;
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  .nav-button {
+    width: 28px;
+    height: 28px;
+    margin: 0;
+  }
+
+  .nav-button svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+@media screen and (max-width: 375px) {
+  .dreambeats__scene-selector {
+    bottom: 65px;
+    width: 240px;
+  }
+
+  .scene-item {
+    width: 110px;
+    height: 62px;
+  }
+
+  .scene-item .scene-name {
+    font-size: 0.65rem;
+    padding: 3px;
+  }
 } 

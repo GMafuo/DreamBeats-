@@ -157,4 +157,12 @@
   .dreambeats__controls {
     padding-bottom: 25px; 
   }
+}
+
+@media screen and (max-width: 768px) {
+  .dreambeats__nowPlaying.hide-on-mobile {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+  }
 } 
