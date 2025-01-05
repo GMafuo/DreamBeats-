@@ -339,3 +339,29 @@
     font-size: 0.75rem;
   }
 }
+
+.focus-input {
+  background: none;
+  border: none;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  font-size: 1.6rem;
+  text-align: center;
+  padding: 0.3rem;
+  margin: 0.3rem 0;
+  width: 300px;
+  transition: all 0.3s ease;
+}
+
+.focus-input:focus {
+  outline: none;
+  border-bottom-color: white;
+}
+
+.focus-subtitle {
+  cursor: text;
+}
+
+.focus-subtitle:hover {
+  opacity: 0.8;
+}

@@ -123,3 +123,9 @@
     bottom: 100px;
   }
 }
+
+@media screen and (max-width: 768px) {
+  .dreambeats__mode-toggle {
+    bottom: 50px;
+  }
+}

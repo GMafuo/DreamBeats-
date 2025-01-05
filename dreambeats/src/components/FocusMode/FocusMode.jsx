@@ -3,6 +3,7 @@ import { IoRefreshOutline, IoExpand, IoPlay, IoPause, IoPencilOutline, IoSaveOut
 import { IoHeartOutline, IoHeart } from 'react-icons/io5';
 import './FocusMode.css';
 import { useAppContext } from '../../context/AppContext';
+import { QUOTES } from '../../data/quotes';
 
 console.log('import.meta.env:', import.meta.env);
 console.log('BASE_URL:', import.meta.env.BASE_URL);
@@ -26,9 +27,9 @@ const FocusMode = () => {
   const TOTAL_SESSIONS = 4;
   const [isSpinning, setIsSpinning] = useState(false);
   const isBreak = mode === 'break';
-  const [quote] = useState({
-    text: "Success is not final, failure is not fatal. It is the courage to continue that counts.",
-    author: "Winston Churchill"
+  const [quote, setQuote] = useState({
+    text: "Loading...",
+    author: ""
   });
   
   const [audio] = useState(new Audio(notificationSound));
@@ -71,7 +72,7 @@ const FocusMode = () => {
       if (nextSessionCount < TOTAL_SESSIONS) {
         setMode('focus');
         setTimeLeft(FOCUS_TIME);
-        setIsActive(true); // Auto-démarrage du prochain focus
+        setIsActive(true); 
       } else {
         // Si on a terminé toutes les sessions
         setMode('focus');
@@ -125,10 +126,9 @@ const FocusMode = () => {
   const handleReset = () => {
     resetTimer();
     setIsSpinning(true);
-    setTimeout(() => setIsSpinning(false), 500); // 500ms pour correspondre à la durée de l'animation CSS
+    setTimeout(() => setIsSpinning(false), 500); 
   };
 
-  // Effet pour le canvas (inchangé)
   useEffect(() => {
     const canvas = document.createElement('canvas');
     canvas.id = 'fluid-canvas';
@@ -176,7 +176,6 @@ const FocusMode = () => {
     };
   }, []);
   
-  // Rendu des cœurs avec indication du cœur actuel
   const renderHearts = () => {
     return [...Array(TOTAL_SESSIONS)].map((_, index) => (
       <span 
@@ -214,6 +213,39 @@ const FocusMode = () => {
     localStorage.setItem('focusNotes', e.target.value);
   };
 
+  // Fonction synchrone pour obtenir la citation
+  const getQuoteOfTheDay = () => {
+    try {
+      const today = new Date().toDateString();
+      const savedQuote = localStorage.getItem('dailyQuote');
+      const savedDate = localStorage.getItem('quoteDate');
+
+      if (savedQuote && savedDate === today) {
+        return JSON.parse(savedQuote);
+      }
+
+      const dayOfMonth = new Date().getDate();
+      const quoteIndex = dayOfMonth % QUOTES.length;
+      const newQuote = QUOTES[quoteIndex];
+      
+      localStorage.setItem('dailyQuote', JSON.stringify(newQuote));
+      localStorage.setItem('quoteDate', today);
+      
+      return newQuote;
+    } catch (error) {
+      console.error('Erreur lors de la récupération de la citation:', error);
+      return QUOTES[0];
+    }
+  };
+
+  useEffect(() => {
+    const todayQuote = getQuoteOfTheDay();
+    setQuote(todayQuote);
+  }, []);
+
+  const [focusText, setFocusText] = useState(localStorage.getItem('focusText') || 'Creating my dreams');
+  const [isEditingFocus, setIsEditingFocus] = useState(false);
+
   return (
     <div className="dreambeats__focus-mode">
       <div className="focus-controls">
@@ -249,11 +281,35 @@ const FocusMode = () => {
       </div>
 
       <div className="focus-title">I'm focusing on</div>
-      <div className="focus-subtitle">Creating lofi site</div>
+      {isEditingFocus ? (
+        <input
+          type="text"
+          className="focus-input"
+          value={focusText}
+          onChange={(e) => {
+            setFocusText(e.target.value);
+            localStorage.setItem('focusText', e.target.value);
+          }}
+          onBlur={() => setIsEditingFocus(false)}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter') {
+              setIsEditingFocus(false);
+            }
+          }}
+          autoFocus
+        />
+      ) : (
+        <div 
+          className="focus-subtitle"
+          onClick={() => setIsEditingFocus(true)}
+        >
+          {focusText}
+        </div>
+      )}
 
       <div className="focus-quote">
-        Success is not final, failure is not fatal: it is the courage to continue that counts
-        <span className="focus-quote-author">- Winston Churchill</span>
+        {quote.text}
+        <span className="focus-quote-author">- {quote.author}</span>
       </div>
 
       <div className="notes-container">
