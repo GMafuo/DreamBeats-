@@ -89,4 +89,72 @@
   0% { transform: translateX(-100%); }
   50% { transform: translateX(0); }
   100% { transform: translateX(100%); }
+}
+
+/* Ajustements généraux pour mobile */
+@media screen and (max-width: 768px) {
+  .dreambeats__nowPlaying {
+    bottom: 120px; /* Espace suffisant au-dessus des contrôles */
+    left: 15px;
+    right: 15px;
+    max-width: calc(100% - 30px);
+    padding: 12px 15px;
+    background: rgba(35, 35, 35, 0.85);
+  }
+
+  .dreambeats__controls {
+    padding-bottom: 25px; /* Espace pour la zone de gesture */
+  }
+
+  .dreambeats__nowPlaying-hybrid {
+    gap: 10px;
+  }
+
+  .dreambeats__nowPlaying-hybrid-content h3 {
+    font-size: 0.9rem;
+  }
+
+  .dreambeats__nowPlaying-hybrid-content .channel {
+    font-size: 0.75rem;
+  }
+}
+
+/* Ajustements spécifiques pour les très petits écrans */
+@media screen and (max-width: 375px) {
+  .dreambeats__nowPlaying {
+    bottom: 70px;
+    padding: 10px 12px;
+  }
+
+  .dreambeats__nowPlaying-hybrid-content h3 {
+    font-size: 0.85rem;
+  }
+
+  .dreambeats__nowPlaying-hybrid-content .channel {
+    font-size: 0.7rem;
+  }
+}
+
+@media screen and (min-width: 390px) and (max-width: 428px) and (min-height: 844px) {
+  .dreambeats__nowPlaying {
+    bottom: 100px; 
+    left: 15px;
+    right: 15px;
+    padding: 12px 15px;
+    background: rgba(35, 35, 35, 0.85); 
+  }
+
+  .dreambeats__nowPlaying-hybrid {
+    gap: 10px;
+  }
+
+  .dreambeats__nowPlaying-hybrid-content {
+    padding-right: 10px; 
+  }
+}
+
+@media screen and (min-width: 390px) and (max-width: 428px) and (min-height: 844px) {
+  .dreambeats__controls {
+    padding-bottom: 25px; 
+  }
 } 
