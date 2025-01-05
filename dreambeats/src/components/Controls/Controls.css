@@ -135,3 +135,36 @@
   pointer-events: none;
 }
 
+/* Ajout de media queries pour mobile */
+@media screen and (max-width: 768px) {
+  .dreambeats__musicControls {
+    right: 50%;
+    transform: translateX(50%);
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .dreambeats__musicControls-buttons {
+    gap: 16px;
+    padding: 0 5px;
+  }
+  
+  .dreambeats__musicControls-wrapper {
+    gap: 8px;
+  }
+  
+  .dreambeats__musicControls-container {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 375px) {
+  .dreambeats__musicControls-buttons {
+    gap: 12px;
+  }
+  
+  .dreambeats__musicControls-wrapper {
+    gap: 6px;
+  }
+}
+
