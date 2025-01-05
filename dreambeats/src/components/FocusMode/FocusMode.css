@@ -7,93 +7,176 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  padding-top: 10%;
+  justify-content: center;
   z-index: 2;
-  background: transparent;
-  pointer-events: auto;
 }
 
-.focus-title {
-  color: white;
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
-}
-
-.focus-options {
+.timer-container {
+  position: relative;
   display: flex;
-  gap: 1rem;
-  margin-bottom: 4rem;
-}
-
-.focus-button {
-  padding: 0.8rem 2rem;
-  border-radius: 2rem;
-  border: none;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  backdrop-filter: blur(10px);
-}
-
-.focus-button.active {
-  background: #6C5CE7;
-}
-
-.focus-button:hover {
-  transform: scale(1.05);
+  align-items: center;
+  justify-content: center;
+  margin-bottom: -15px;
 }
 
 .focus-timer {
-  font-size: 8rem;
+  font-size: 7rem;
   color: white;
   font-weight: bold;
-  margin-bottom: 2rem;
+  letter-spacing: 2px;
+}
+
+.play-button {
+  position: absolute;
+  left: -30px;
+  top: 6px;
+  background: none;
+  border: 2px solid white;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.play-button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.play-button:hover {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.reset-button {
+  position: absolute;
+  right: -30px;
+  top: 6px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+  outline: none;
+}
+
+.reset-button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.reset-button.spinning {
+  animation: spin 0.5s ease-out;
+}
+
+.reset-button:hover {
+  transform: scale(1.1);
+}
+
+.session-hearts {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 5px;
+}
+
+.focus-title {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.1rem;
+  margin: 0;
+  margin-top: 1rem;
+  font-weight: normal;
+}
+
+.focus-subtitle {
+  color: white;
+  font-size: 1.6rem;
+  margin: 0.3rem 0;
+  font-weight: 500;
+}
+
+.heart-icon {
+  color: #ff4b4b;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+  font-size: 1.5rem;
+}
+
+.heart-icon.current {
+  opacity: 1;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.heart-icon.current svg {
+  filter: drop-shadow(0 0 2px rgba(255, 75, 75, 0.5));
 }
 
 .focus-controls {
   display: flex;
-  gap: 1rem;
-  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 3rem;
 }
 
-.control-button {
-  padding: 1rem 3rem;
-  border-radius: 2rem;
-  border: none;
-  font-size: 1.2rem;
+.modefocus-button {
+  background: none;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 25px;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 0.6rem 2rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: #6C5CE7;
-  color: white;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 500;
 }
 
-.icon-button {
-  background: none;
-  border: none;
-  padding: 10px;
-  cursor: pointer;
-  transition: transform 0.3s ease;
+.modefocus-button.active {
+  border-color: white;
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.modefocus-button:hover:not(.active) {
+  border-color: rgba(255, 255, 255, 0.3);
   color: rgba(255, 255, 255, 0.8);
-  outline: none;
 }
 
-.icon-button:focus {
-  outline: none;
-}
-
-.icon-button:hover {
+.mode-button:hover {
+  border-color: white;
   color: white;
 }
 
-.icon-button.reset {
-  font-size: 32px;
-  padding: 15px;
+.focus-quote {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.8rem;
+  font-style: italic;
+  padding: 0 20px;
 }
 
-@keyframes spinReset {
+.focus-quote-author {
+  margin-left: 5px;
+  font-weight: 500;
+}
+
+@keyframes spin {
   from {
     transform: rotate(0deg);
   }
@@ -102,127 +185,17 @@
   }
 }
 
-.icon-button.reset svg {
-  transition: transform 0.3s ease;
-}
-
-.icon-button.reset.spinning svg {
-  animation: spinReset 0.5s ease;
-}
-
-.focus-dots {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 2rem;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.dot.active {
-  background: white;
-}
-
-/* Styles repris de l'index.html */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-.dg .cr.function .property-name {
-  width: 100%;
-}
-
-.dg .c {
-  width: 100%;
-}
-
-.dg.main {
-  margin-right: 0;
-}
-
-.dg .property-name {
-  overflow: visible;
-}
-
-.bigFont {
-  font-size: 150%;
-  color: #8C8C8C;
-}
-
-.cr.function {
-  height: 27px;
-}
-
-.cr.function .property-name {
-  line-height: 27px;
-}
-
-.cr.function * {
-  line-height: 27px;
-}
-
-.dreambeats__focus-mode-text {
-  position: absolute;
-  top: 20%;
-  left: 50%;
-  transform: translateX(-50%);
-  color: white;
-  font-size: 3rem;
-  z-index: 2;
-  pointer-events: none;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-/* Ajouter l'animation de clignotement */
-@keyframes heartBlink {
-  0% { opacity: 0.3; }
-  50% { opacity: 1; }
-  100% { opacity: 0.3; }
-}
-
-.session-hearts {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin: 20px 0;
-}
-
-.heart-icon {
-  transition: all 0.3s ease;
-}
-
-.heart-icon.current {
-  animation: heartBlink 2s ease-in-out infinite;
-}
-
-.heart-icon:hover {
-  transform: scale(1.1);
-}
-
-.inspirational-quote {
-  position: absolute;
-  top: 30px;
-  right: 30px;
-  font-style: italic;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 1rem;
-  max-width: 300px;
-  text-align: right;
-  line-height: 1.4;
-}
-
-.quote-text {
-  display: block;
-  margin-bottom: 5px;
-}
-
-.quote-author {
-  font-size: 0.9rem;
-  opacity: 0.7;
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
 }

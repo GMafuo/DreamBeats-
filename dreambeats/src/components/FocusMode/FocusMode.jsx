@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { IoRefreshOutline, IoExpand } from 'react-icons/io5';
+import { IoRefreshOutline, IoExpand, IoPlay, IoPause } from 'react-icons/io5';
 import { IoHeartOutline, IoHeart } from 'react-icons/io5';
 import './FocusMode.css';
 import { useAppContext } from '../../context/AppContext';
@@ -125,7 +125,7 @@ const FocusMode = () => {
   const handleReset = () => {
     resetTimer();
     setIsSpinning(true);
-    setTimeout(() => setIsSpinning(false), 500); // Durée de l'animation
+    setTimeout(() => setIsSpinning(false), 500); // 500ms pour correspondre à la durée de l'animation CSS
   };
 
   // Effet pour le canvas (inchangé)
@@ -208,44 +208,44 @@ const FocusMode = () => {
 
   return (
     <div className="dreambeats__focus-mode">
-      <div className="inspirational-quote">
-        <span className="quote-text">"{quote.text}"</span>
-        <span className="quote-author">- {quote.author}</span>
-      </div>
-
-      <h1 className="focus-title">What do you want to focus on? ✏️</h1>
-      
-      <div className="focus-options">
+      <div className="focus-controls">
         <button 
-          className={`focus-button ${mode === 'focus' ? 'active' : ''}`}
+          className={`modefocus-button ${mode === 'focus' ? 'active' : ''}`}
           onClick={() => handleModeChange('focus')}
         >
           Focus
         </button>
         <button 
-          className={`focus-button ${mode === 'break' ? 'active' : ''}`}
+          className={`modefocus-button ${mode === 'break' ? 'active' : ''}`}
           onClick={() => handleModeChange('break')}
         >
           Break
         </button>
       </div>
-
+      
+      <div className="timer-container">
+        <button className="play-button" onClick={toggleTimer}>
+          {isActive ? <IoPause size={15} /> : <IoPlay size={15} />}
+        </button>
+        <div className="focus-timer">{formatTime(timeLeft)}</div>
+        <button 
+          className={`reset-button ${isSpinning ? 'spinning' : ''}`} 
+          onClick={handleReset}
+        >
+          <IoRefreshOutline size={35} />
+        </button>
+      </div>
+      
       <div className="session-hearts">
         {renderHearts()}
       </div>
 
-      <div className="focus-timer">{formatTime(timeLeft)}</div>
+      <div className="focus-title">I'm focusing on</div>
+      <div className="focus-subtitle">Creating the best extension ever</div>
 
-      <div className="focus-controls">
-        <button className="control-button" onClick={toggleTimer}>
-          {isActive ? 'Pause' : 'Start'}
-        </button>
-        <button 
-          className={`icon-button reset ${isSpinning ? 'spinning' : ''}`} 
-          onClick={handleReset}
-        >
-          <IoRefreshOutline size={32} />
-        </button>
+      <div className="focus-quote">
+        Success is not final, failure is not fatal: it is the courage to continue that counts
+        <span className="focus-quote-author">- Winston Churchill</span>
       </div>
     </div>
   );
