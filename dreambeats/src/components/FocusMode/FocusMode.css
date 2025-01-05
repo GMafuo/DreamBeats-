@@ -1,6 +1,6 @@
 .dreambeats__focus-mode {
   position: fixed;
-  top: 0;
+  top: 2rem;
   left: 0;
   width: 100%;
   height: 100%;
@@ -124,8 +124,14 @@
 
 .focus-controls {
   display: flex;
-  gap: 0.8rem;
-  margin-bottom: 3rem;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+
+.focus-controls:hover {
+  opacity: 1; 
 }
 
 .modefocus-button {
@@ -133,13 +139,15 @@
   border: 2px solid rgba(255, 255, 255, 0.15);
   border-radius: 25px;
   color: rgba(255, 255, 255, 0.5);
-  padding: 0.6rem 2rem;
+  padding: 0.7rem 2.2rem;
   cursor: pointer;
   transition: all 0.3s ease;
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 2px;
   font-weight: 500;
+  position: relative;
+  overflow: hidden;
 }
 
 .modefocus-button.active {
@@ -147,11 +155,32 @@
   color: white;
   background: rgba(255, 255, 255, 0.1);
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
 }
 
 .modefocus-button:hover:not(.active) {
   border-color: rgba(255, 255, 255, 0.3);
   color: rgba(255, 255, 255, 0.8);
+  transform: translateY(-2px);
+}
+
+.modefocus-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120%;
+  height: 120%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translate(-50%, -50%) scale(0);
+  border-radius: inherit;
+  transition: transform 0.4s ease;
+  pointer-events: none;
+}
+
+.modefocus-button:active::after {
+  transform: translate(-50%, -50%) scale(1);
+  transition: transform 0.1s ease;
 }
 
 .mode-button:hover {
@@ -198,4 +227,85 @@
     transform: scale(1);
     opacity: 0.7;
   }
+}
+
+.notes-container {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 300px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.notes-container:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.notes-textarea,
+.notes-display {
+  width: 100%;
+  min-height: 100px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.notes-textarea {
+  outline: none;
+  padding: 0;
+}
+
+.notes-display {
+  cursor: text;
+  white-space: pre-wrap;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.notes-toggle {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.notes-toggle:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.notes-container:focus-within {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+/* Placeholder styling */
+.notes-textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Scrollbar styling */
+.notes-textarea::-webkit-scrollbar {
+  width: 4px;
+}
+
+.notes-textarea::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.notes-textarea::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
 }

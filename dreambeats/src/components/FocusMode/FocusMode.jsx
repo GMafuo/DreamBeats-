@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { IoRefreshOutline, IoExpand, IoPlay, IoPause } from 'react-icons/io5';
+import { IoRefreshOutline, IoExpand, IoPlay, IoPause, IoPencilOutline, IoSaveOutline } from 'react-icons/io5';
 import { IoHeartOutline, IoHeart } from 'react-icons/io5';
 import './FocusMode.css';
 import { useAppContext } from '../../context/AppContext';
@@ -206,6 +206,14 @@ const FocusMode = () => {
     }
   }, [isActive, timeLeft, mode]);
 
+  const [notes, setNotes] = useState(localStorage.getItem('focusNotes') || '');
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleNotesChange = (e) => {
+    setNotes(e.target.value);
+    localStorage.setItem('focusNotes', e.target.value);
+  };
+
   return (
     <div className="dreambeats__focus-mode">
       <div className="focus-controls">
@@ -246,6 +254,29 @@ const FocusMode = () => {
       <div className="focus-quote">
         Success is not final, failure is not fatal: it is the courage to continue that counts
         <span className="focus-quote-author">- Winston Churchill</span>
+      </div>
+
+      <div className="notes-container">
+        {isEditing ? (
+          <textarea
+            className="notes-textarea"
+            value={notes}
+            onChange={handleNotesChange}
+            placeholder="Qu'aimeriez-vous accomplir aujourd'hui ?"
+            autoFocus
+          />
+        ) : (
+          <div className="notes-display" onClick={() => setIsEditing(true)}>
+            {notes || "Cliquez pour ajouter des notes..."}
+          </div>
+        )}
+        <button 
+          className="notes-toggle"
+          onClick={() => setIsEditing(!isEditing)}
+          aria-label={isEditing ? "Sauvegarder" : "Éditer"}
+        >
+          {isEditing ? <IoSaveOutline size={20} /> : <IoPencilOutline size={20} />}
+        </button>
       </div>
     </div>
   );
