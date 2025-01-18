@@ -130,37 +130,66 @@ const FocusMode = () => {
   };
 
   useEffect(() => {
-    const canvas = document.createElement('canvas');
-    canvas.id = 'fluid-canvas';
-    canvas.style.position = 'fixed';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.style.zIndex = '1';
-    document.body.appendChild(canvas);
+    // Nettoyer les anciens éléments
+    const oldCanvas = document.getElementById('fluid-canvas');
+    if (oldCanvas) {
+      oldCanvas.remove();
+    }
 
-    window.getFluidCanvas = () => canvas;
+    const oldScripts = document.querySelectorAll('script[src*="assets"]');
+    oldScripts.forEach(script => script.remove());
+
+    const fluidCanvas = document.createElement('canvas');
+    fluidCanvas.id = 'fluid-canvas';
+    fluidCanvas.style.position = 'fixed';
+    fluidCanvas.style.top = '0';
+    fluidCanvas.style.left = '0';
+    fluidCanvas.style.width = '100%';
+    fluidCanvas.style.height = '100%';
+    fluidCanvas.style.zIndex = '1';
+    document.body.appendChild(fluidCanvas);
+
+    window.getFluidCanvas = () => fluidCanvas;
     
-    const loadScriptOnce = (src) => {
+    const loadScript = (src) => {
       return new Promise((resolve, reject) => {
-        if (document.querySelector(`script[src="${src}"]`)) {
-          resolve();
-          return;
+        if (src.includes('script.js')) {
+          fetch(src)
+            .then(response => response.text())
+            .then(content => {
+              const script = document.createElement('script');
+              const modifiedContent = `
+                (function() {
+                  if (window.fluidSimulation) {
+                    window.fluidSimulation.cleanup();
+                    delete window.fluidSimulation;
+                  }
+                  window.canvas = document.getElementById('fluid-canvas');
+                  ${content}
+                })();
+              `;
+              script.textContent = modifiedContent;
+              document.body.appendChild(script);
+              resolve(script);
+            })
+            .catch(reject);
+        } else {
+          const script = document.createElement('script');
+          script.src = src;
+          script.onload = () => resolve(script);
+          script.onerror = reject;
+          document.body.appendChild(script);
         }
-
-        const script = document.createElement('script');
-        script.src = src;
-        script.onload = resolve;
-        script.onerror = reject;
-        document.body.appendChild(script);
       });
     };
 
+    let loadedScripts = [];
+
     const initFluidSimulation = async () => {
       try {
-        await loadScriptOnce(datGuiPath);
-        await loadScriptOnce(`${BASE_PATH}/assets/script.js`);
+        const datGuiScript = await loadScript(datGuiPath);
+        const fluidScript = await loadScript(`${BASE_PATH}/assets/script.js`);
+        loadedScripts.push(datGuiScript, fluidScript);
       } catch (error) {
         console.error('💥 Erreur de chargement:', error);
       }
@@ -169,10 +198,27 @@ const FocusMode = () => {
     initFluidSimulation();
 
     return () => {
-      const scripts = document.querySelectorAll('script[src*="assets"]');
-      scripts.forEach(script => script.remove());
-      canvas.remove();
+      loadedScripts.forEach(script => {
+        if (script && script.parentNode) {
+          script.parentNode.removeChild(script);
+        }
+      });
+
+      if (fluidCanvas && fluidCanvas.parentNode) {
+        fluidCanvas.parentNode.removeChild(fluidCanvas);
+      }
+
       delete window.getFluidCanvas;
+      delete window.canvas;
+      if (window.fluidSimulation) {
+        window.fluidSimulation.cleanup();
+        delete window.fluidSimulation;
+      }
+      
+      const gl = fluidCanvas.getContext('webgl') || fluidCanvas.getContext('webgl2');
+      if (gl) {
+        gl.getExtension('WEBGL_lose_context')?.loseContext();
+      }
     };
   }, []);
   
