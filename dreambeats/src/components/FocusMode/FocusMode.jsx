@@ -246,6 +246,28 @@ const FocusMode = () => {
   const [focusText, setFocusText] = useState(localStorage.getItem('focusText') || 'Creating my dreams');
   const [isEditingFocus, setIsEditingFocus] = useState(false);
 
+  useEffect(() => {
+    const updateTitle = () => {
+      if (isActive) {
+        document.title = `⚡ ${formatTime(timeLeft)} | DreamBeats~`;
+      } else {
+        document.title = 'DreamBeats~ | Focus Mode';
+      }
+    };
+
+    updateTitle();
+
+    let intervalId;
+    if (isActive) {
+      intervalId = setInterval(updateTitle, 1000);
+    }
+
+    return () => {
+      clearInterval(intervalId);
+      document.title = 'DreamBeats~';
+    };
+  }, [isActive, timeLeft]);
+
   return (
     <div className="dreambeats__focus-mode">
       <div className="focus-controls">
