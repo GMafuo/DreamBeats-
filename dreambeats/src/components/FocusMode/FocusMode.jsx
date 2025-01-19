@@ -5,148 +5,83 @@ import './FocusMode.css';
 import { useAppContext } from '../../context/AppContext';
 import { QUOTES } from '../../data/quotes';
 
-console.log('import.meta.env:', import.meta.env);
-console.log('BASE_URL:', import.meta.env.BASE_URL);
-
 const BASE_PATH = import.meta.env.PROD ? '/DreamBeats-' : '';
 const datGuiPath = `${BASE_PATH}/assets/dat.gui.min.js`;
-
-console.log('Environment:', import.meta.env.MODE);
-console.log('BASE_PATH:', BASE_PATH);
-console.log('datGuiPath:', datGuiPath);
-
 const notificationSound = `${BASE_PATH}/assets/notification.mp3`;
+const TOTAL_SESSIONS = 4;
 
 const FocusMode = () => {
   const { focusTime, shortBreakTime } = useAppContext();
   const [mode, setMode] = useState('focus');
   const [timeLeft, setTimeLeft] = useState(focusTime * 60);
   const [isActive, setIsActive] = useState(false);
-  const [autoSwitch, setAutoSwitch] = useState(false);
   const [sessionCount, setSessionCount] = useState(0);
-  const TOTAL_SESSIONS = 4;
   const [isSpinning, setIsSpinning] = useState(false);
-  const isBreak = mode === 'break';
-  const [quote, setQuote] = useState({
-    text: "Loading...",
-    author: ""
-  });
-  
+  const [notes, setNotes] = useState(localStorage.getItem('focusNotes') || '');
+  const [isEditing, setIsEditing] = useState(false);
+  const [focusText, setFocusText] = useState(localStorage.getItem('focusText') || 'Creating my dreams');
+  const [isEditingFocus, setIsEditingFocus] = useState(false);
+  const [quote, setQuote] = useState(QUOTES[new Date().getDate() % QUOTES.length]);
   const [audio] = useState(new Audio(notificationSound));
 
-  // Durées en secondes
   const FOCUS_TIME = focusTime * 60;
   const BREAK_TIME = shortBreakTime * 60;
+  const isBreak = mode === 'break';
 
-  const playNotificationSound = () => {
-    audio.currentTime = 0; // Remettre le son au début
-    audio.play().catch(error => {
-      console.error('Erreur lors de la lecture du son:', error);
-    });
-  };
-
-  // Formater le temps pour l'affichage
-  const formatTime = (seconds) => {
+  const formatTime = useCallback((seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
+  }, []);
 
-  // Gérer la fin d'un timer
+  const playNotificationSound = useCallback(() => {
+    audio.currentTime = 0;
+    audio.play().catch(error => console.error('Erreur audio:', error));
+  }, [audio]);
+
   const handleTimerComplete = useCallback(() => {
     playNotificationSound();
     setIsActive(false);
 
     if (mode === 'focus') {
-      // Passage en mode break
       setMode('break');
-      setTimeLeft(BREAK_TIME);
+      setTimeLeft(shortBreakTime * 60);
       setIsActive(true);
-      setAutoSwitch(true);
     } else {
-      // Fin du break, on incrémente le compteur de sessions complètes
-      const nextSessionCount = sessionCount + 1;
-      setSessionCount(nextSessionCount);
-      
-      // Si on n'a pas atteint le nombre total de sessions
-      if (nextSessionCount < TOTAL_SESSIONS) {
+      const nextCount = sessionCount + 1;
+      if (nextCount < TOTAL_SESSIONS) {
         setMode('focus');
-        setTimeLeft(FOCUS_TIME);
-        setIsActive(true); 
+        setTimeLeft(focusTime * 60);
+        setIsActive(true);
+        setSessionCount(nextCount);
       } else {
-        // Si on a terminé toutes les sessions
         setMode('focus');
-        setTimeLeft(FOCUS_TIME);
+        setTimeLeft(focusTime * 60);
         setSessionCount(0);
-        setIsActive(false);
       }
     }
-  }, [mode, sessionCount]);
+  }, [mode, sessionCount, shortBreakTime, focusTime, playNotificationSound]);
 
-  // Timer principal
+  // Timer Effect
   useEffect(() => {
-    let interval = null;
-
+    let interval;
     if (isActive && timeLeft > 0) {
       interval = setInterval(() => {
-        setTimeLeft(time => {
-          if (time <= 1) {
-            handleTimerComplete();
-            return 0;
-          }
-          return time - 1;
-        });
+        setTimeLeft(time => time <= 1 ? (handleTimerComplete(), 0) : time - 1);
       }, 1000);
     }
-
     return () => clearInterval(interval);
-  }, [isActive, timeLeft, isBreak, sessionCount]);
+  }, [isActive, timeLeft, handleTimerComplete]);
 
-  // Gérer le changement de mode manuel
-  const handleModeChange = (newMode) => {
-    setMode(newMode);
-    setTimeLeft(newMode === 'focus' ? FOCUS_TIME : BREAK_TIME);
-    setIsActive(false);
-    setAutoSwitch(false);
-    setSessionCount(0); // Réinitialiser le compteur de sessions
-  };
-
-  // Gérer le bouton Start/Pause
-  const toggleTimer = () => {
-    setIsActive(!isActive);
-  };
-
-  // Gérer le bouton Reset
-  const resetTimer = () => {
-    setIsActive(false);
-    setTimeLeft(mode === 'focus' ? FOCUS_TIME : BREAK_TIME);
-    setSessionCount(0);
-  };
-
-  const handleReset = () => {
-    resetTimer();
-    setIsSpinning(true);
-    setTimeout(() => setIsSpinning(false), 500); 
-  };
-
+  // Fluid Animation Effect
   useEffect(() => {
-    // Nettoyer les anciens éléments
     const oldCanvas = document.getElementById('fluid-canvas');
-    if (oldCanvas) {
-      oldCanvas.remove();
-    }
-
-    const oldScripts = document.querySelectorAll('script[src*="assets"]');
-    oldScripts.forEach(script => script.remove());
+    if (oldCanvas) oldCanvas.remove();
+    document.querySelectorAll('script[src*="assets"]').forEach(script => script.remove());
 
     const fluidCanvas = document.createElement('canvas');
     fluidCanvas.id = 'fluid-canvas';
-    fluidCanvas.style.position = 'fixed';
-    fluidCanvas.style.top = '0';
-    fluidCanvas.style.left = '0';
-    fluidCanvas.style.width = '100%';
-    fluidCanvas.style.height = '100%';
-    fluidCanvas.style.zIndex = '1';
+    fluidCanvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;';
     document.body.appendChild(fluidCanvas);
 
     window.getFluidCanvas = () => fluidCanvas;
@@ -158,7 +93,7 @@ const FocusMode = () => {
             .then(response => response.text())
             .then(content => {
               const script = document.createElement('script');
-              const modifiedContent = `
+              script.textContent = `
                 (function() {
                   if (window.fluidSimulation) {
                     window.fluidSimulation.cleanup();
@@ -168,7 +103,6 @@ const FocusMode = () => {
                   ${content}
                 })();
               `;
-              script.textContent = modifiedContent;
               document.body.appendChild(script);
               resolve(script);
             })
@@ -184,135 +118,68 @@ const FocusMode = () => {
     };
 
     let loadedScripts = [];
-
-    const initFluidSimulation = async () => {
-      try {
-        const datGuiScript = await loadScript(datGuiPath);
-        const fluidScript = await loadScript(`${BASE_PATH}/assets/script.js`);
-        loadedScripts.push(datGuiScript, fluidScript);
-      } catch (error) {
-        console.error('💥 Erreur de chargement:', error);
-      }
-    };
-
-    initFluidSimulation();
+    Promise.all([loadScript(datGuiPath), loadScript(`${BASE_PATH}/assets/script.js`)])
+      .then(scripts => loadedScripts = scripts)
+      .catch(error => console.error('💥 Erreur de chargement:', error));
 
     return () => {
-      loadedScripts.forEach(script => {
-        if (script && script.parentNode) {
-          script.parentNode.removeChild(script);
-        }
-      });
-
-      if (fluidCanvas && fluidCanvas.parentNode) {
-        fluidCanvas.parentNode.removeChild(fluidCanvas);
-      }
-
+      loadedScripts.forEach(script => script?.parentNode?.removeChild(script));
+      fluidCanvas?.parentNode?.removeChild(fluidCanvas);
       delete window.getFluidCanvas;
       delete window.canvas;
       if (window.fluidSimulation) {
         window.fluidSimulation.cleanup();
         delete window.fluidSimulation;
       }
-      
       const gl = fluidCanvas.getContext('webgl') || fluidCanvas.getContext('webgl2');
-      if (gl) {
-        gl.getExtension('WEBGL_lose_context')?.loseContext();
-      }
+      gl?.getExtension('WEBGL_lose_context')?.loseContext();
     };
   }, []);
-  
-  const renderHearts = () => {
-    return [...Array(TOTAL_SESSIONS)].map((_, index) => (
-      <span 
-        key={index} 
-        className={`heart-icon ${index === sessionCount && isActive ? 'current' : ''}`}
-      >
-        {index < sessionCount ? (
-          <IoHeart size={24} color="#ff4b4b" />
-        ) : (
-          <IoHeartOutline size={24} color="#ff4b4b" />
-        )}
-      </span>
-    ));
-  };
 
+  // Title Effect
   useEffect(() => {
+    document.title = isActive ? `⚡ ${formatTime(timeLeft)} | DreamBeats~` : 'DreamBeats~ | Focus Mode';
+    return () => { document.title = 'DreamBeats~'; };
+  }, [isActive, timeLeft, formatTime]);
+
+  const handleModeChange = useCallback((newMode) => {
+    setMode(newMode);
+    setTimeLeft(newMode === 'focus' ? FOCUS_TIME : BREAK_TIME);
+    setIsActive(false);
+    setSessionCount(0);
+  }, [FOCUS_TIME, BREAK_TIME]);
+
+  const handleReset = useCallback(() => {
+    setIsActive(false);
     setTimeLeft(mode === 'focus' ? FOCUS_TIME : BREAK_TIME);
-  }, [focusTime, shortBreakTime, mode, FOCUS_TIME, BREAK_TIME]);
+    setSessionCount(0);
+    setIsSpinning(true);
+    setTimeout(() => setIsSpinning(false), 500);
+  }, [mode, FOCUS_TIME, BREAK_TIME]);
 
-  useEffect(() => {
-    const audio = new Audio(notificationSound);
-    
-    if (isActive && timeLeft === 0) {
-      audio.play().catch(error => {
-        console.error('Erreur lors de la lecture du son:', error);
-      });
-    }
-  }, [isActive, timeLeft, mode]);
+  const renderHearts = useCallback(() => (
+    [...Array(TOTAL_SESSIONS)].map((_, index) => (
+      <span key={index} className={`heart-icon ${index === sessionCount && isActive ? 'current' : ''}`}>
+        {index < sessionCount ? <IoHeart size={24} color="#ff4b4b" /> : <IoHeartOutline size={24} color="#ff4b4b" />}
+      </span>
+    ))
+  ), [sessionCount, isActive]);
 
-  const [notes, setNotes] = useState(localStorage.getItem('focusNotes') || '');
-  const [isEditing, setIsEditing] = useState(false);
-
-  const handleNotesChange = (e) => {
-    setNotes(e.target.value);
-    localStorage.setItem('focusNotes', e.target.value);
-  };
-
-  // Fonction synchrone pour obtenir la citation
-  const getQuoteOfTheDay = () => {
-    try {
-      const today = new Date().toDateString();
-      const savedQuote = localStorage.getItem('dailyQuote');
-      const savedDate = localStorage.getItem('quoteDate');
-
-      if (savedQuote && savedDate === today) {
-        return JSON.parse(savedQuote);
-      }
-
-      const dayOfMonth = new Date().getDate();
-      const quoteIndex = dayOfMonth % QUOTES.length;
-      const newQuote = QUOTES[quoteIndex];
-      
-      localStorage.setItem('dailyQuote', JSON.stringify(newQuote));
-      localStorage.setItem('quoteDate', today);
-      
-      return newQuote;
-    } catch (error) {
-      console.error('Erreur lors de la récupération de la citation:', error);
-      return QUOTES[0];
-    }
-  };
-
-  useEffect(() => {
-    const todayQuote = getQuoteOfTheDay();
-    setQuote(todayQuote);
+  const toggleTimer = useCallback(() => {
+    setIsActive(prev => !prev);
   }, []);
 
-  const [focusText, setFocusText] = useState(localStorage.getItem('focusText') || 'Creating my dreams');
-  const [isEditingFocus, setIsEditingFocus] = useState(false);
-
   useEffect(() => {
-    const updateTitle = () => {
-      if (isActive) {
-        document.title = `⚡ ${formatTime(timeLeft)} | DreamBeats~`;
-      } else {
-        document.title = 'DreamBeats~ | Focus Mode';
-      }
-    };
-
-    updateTitle();
-
-    let intervalId;
-    if (isActive) {
-      intervalId = setInterval(updateTitle, 1000);
+    if (!isActive) {
+      setTimeLeft(mode === 'focus' ? focusTime * 60 : shortBreakTime * 60);
     }
+  }, [focusTime, shortBreakTime, mode, isActive]);
 
-    return () => {
-      clearInterval(intervalId);
-      document.title = 'DreamBeats~';
-    };
-  }, [isActive, timeLeft]);
+  const handleNotesChange = useCallback((e) => {
+    const newNotes = e.target.value;
+    setNotes(newNotes);
+    localStorage.setItem('focusNotes', newNotes);
+  }, []);
 
   return (
     <div className="dreambeats__focus-mode">
