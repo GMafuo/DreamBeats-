@@ -73,7 +73,6 @@ const FocusMode = () => {
     return () => clearInterval(interval);
   }, [isActive, timeLeft, handleTimerComplete]);
 
-  // Fluid Animation Effect
   useEffect(() => {
     const oldCanvas = document.getElementById('fluid-canvas');
     if (oldCanvas) oldCanvas.remove();
@@ -81,8 +80,28 @@ const FocusMode = () => {
 
     const fluidCanvas = document.createElement('canvas');
     fluidCanvas.id = 'fluid-canvas';
+    
+    const ctx = fluidCanvas.getContext('webgl2', {
+      alpha: false,
+      antialias: false,
+      depth: false,
+      powerPreference: 'high-performance',
+      preserveDrawingBuffer: false
+    });
+
     fluidCanvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:1;';
     document.body.appendChild(fluidCanvas);
+
+    const adjustResolution = () => {
+      const scale = window.devicePixelRatio * 0.75; // Réduction de la résolution
+      const width = Math.floor(window.innerWidth * scale);
+      const height = Math.floor(window.innerHeight * scale);
+      fluidCanvas.width = width;
+      fluidCanvas.height = height;
+    };
+
+    adjustResolution();
+    window.addEventListener('resize', adjustResolution);
 
     window.getFluidCanvas = () => fluidCanvas;
     
@@ -93,6 +112,14 @@ const FocusMode = () => {
             .then(response => response.text())
             .then(content => {
               const script = document.createElement('script');
+              // Ajout des optimisations dans le script
+              const optimizedContent = content.replace(
+                'function pointerPrototype',
+                `
+                const QUALITY = window.navigator.userAgent.includes('Opera') ? 0.5 : 1;
+                const DENSITY = window.navigator.userAgent.includes('Opera') ? 0.5 : 1;
+                function pointerPrototype`
+              );
               script.textContent = `
                 (function() {
                   if (window.fluidSimulation) {
@@ -100,7 +127,7 @@ const FocusMode = () => {
                     delete window.fluidSimulation;
                   }
                   window.canvas = document.getElementById('fluid-canvas');
-                  ${content}
+                  ${optimizedContent}
                 })();
               `;
               document.body.appendChild(script);
@@ -123,6 +150,7 @@ const FocusMode = () => {
       .catch(error => console.error('💥 Erreur de chargement:', error));
 
     return () => {
+      window.removeEventListener('resize', adjustResolution);
       loadedScripts.forEach(script => script?.parentNode?.removeChild(script));
       fluidCanvas?.parentNode?.removeChild(fluidCanvas);
       delete window.getFluidCanvas;
