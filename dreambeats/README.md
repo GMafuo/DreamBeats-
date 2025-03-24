@@ -53,7 +53,6 @@ npm run dev
 - Définissez votre durée de focus et de pause
 - Utilisez le timer pour suivre vos sessions
 - Prenez des notes pendant vos sessions
-- Personnalisez votre objectif de focus
 
 ## 🌐 Démo
 
