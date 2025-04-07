@@ -10,9 +10,9 @@ export const YOUTUBE_STREAMS = [
     channel: 'Lofi Girl'
   },
   {
-    id: 'ralJmHG-DII',
-    title: 'jazz/lofi hip hop radio🌱chill beats to relax/study to [LIVE 24/7]',
-    channel: 'thebootlegboy2'
+    id: 'TfmECBzmOn4',
+    title: 'Lofi Hip Hop Radio 🍉 Relaxing Beats to Study, Sleep, Chill to 24/7',
+    channel: 'Lofi Fruits'
   }
 ];
 

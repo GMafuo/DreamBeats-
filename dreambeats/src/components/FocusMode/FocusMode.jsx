@@ -15,6 +15,7 @@ const FocusMode = () => {
   const [mode, setMode] = useState('focus');
   const [timeLeft, setTimeLeft] = useState(focusTime * 60);
   const [isActive, setIsActive] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [sessionCount, setSessionCount] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
   const [notes, setNotes] = useState(localStorage.getItem('focusNotes') || '');
@@ -42,6 +43,7 @@ const FocusMode = () => {
   const handleTimerComplete = useCallback(() => {
     playNotificationSound();
     setIsActive(false);
+    setIsPaused(false);
 
     if (mode === 'focus') {
       setMode('break');
@@ -174,11 +176,13 @@ const FocusMode = () => {
     setMode(newMode);
     setTimeLeft(newMode === 'focus' ? FOCUS_TIME : BREAK_TIME);
     setIsActive(false);
+    setIsPaused(false);
     setSessionCount(0);
   }, [FOCUS_TIME, BREAK_TIME]);
 
   const handleReset = useCallback(() => {
     setIsActive(false);
+    setIsPaused(false);
     setTimeLeft(mode === 'focus' ? FOCUS_TIME : BREAK_TIME);
     setSessionCount(0);
     setIsSpinning(true);
@@ -194,14 +198,19 @@ const FocusMode = () => {
   ), [sessionCount, isActive]);
 
   const toggleTimer = useCallback(() => {
+    if (isActive) {
+      setIsPaused(true);
+    } else {
+      setIsPaused(false);
+    }
     setIsActive(prev => !prev);
-  }, []);
+  }, [isActive]);
 
   useEffect(() => {
-    if (!isActive) {
+    if (!isActive && !isPaused) {
       setTimeLeft(mode === 'focus' ? focusTime * 60 : shortBreakTime * 60);
     }
-  }, [focusTime, shortBreakTime, mode, isActive]);
+  }, [focusTime, shortBreakTime, mode, isActive, isPaused]);
 
   const handleNotesChange = useCallback((e) => {
     const newNotes = e.target.value;
