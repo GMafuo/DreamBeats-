@@ -45,26 +45,29 @@ const SceneSelector = ({ isVisible = false, onVisibilityChange = () => {} }) => 
   return (
     <div className={`dreambeats__scene-selector ${isVisible ? 'visible' : ''}`}>
       {showPrevButton && (
-        <button className="nav-button prev" onClick={slidePrev} type="button">
+        <button className="nav-button prev" onClick={slidePrev} type="button" aria-label="Scenes precedentes">
           <IoChevronBackOutline size={20} />
         </button>
       )}
       
       <div className="dreambeats__scene-selector-container">
         {visibleScenes.map((scene, index) => (
-          <div
+          <button
             key={`${scene.id}-${startIndex + index}`}
             className={`scene-item ${currentScene.id === scene.id ? 'active' : ''}`}
             onClick={() => handleSceneSelect(scene.id)}
+            type="button"
+            aria-pressed={currentScene.id === scene.id}
+            aria-label={`Choisir la scene ${scene.title}`}
           >
             <img src={scene.image} alt={scene.title} />
             <span className="scene-name">{scene.title}</span>
-          </div>
+          </button>
         ))}
       </div>
 
       {showNextButton && (
-        <button className="nav-button next" onClick={slideNext} type="button">
+        <button className="nav-button next" onClick={slideNext} type="button" aria-label="Scenes suivantes">
           <IoChevronForwardOutline size={20} />
         </button>
       )}

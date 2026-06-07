@@ -470,6 +470,31 @@ const FocusMode = () => {
   const completedTasks = tasks.filter(task => task.done).length;
   const matchingSlashCommands = slashMenu.visible ? getMatchingSlashCommands(slashMenu.query) : [];
 
+  useEffect(() => {
+    if (!notesPanelSize) return;
+
+    const clampStoredPanelSize = () => {
+      const minWidth = 260;
+      const minHeight = 230;
+      const maxWidth = Math.max(minWidth, window.innerWidth - 32);
+      const maxHeight = Math.max(minHeight, window.innerHeight - 32);
+      const nextSize = {
+        width: Math.round(clamp(notesPanelSize.width, minWidth, maxWidth)),
+        height: Math.round(clamp(notesPanelSize.height, minHeight, maxHeight)),
+      };
+
+      if (nextSize.width !== notesPanelSize.width || nextSize.height !== notesPanelSize.height) {
+        setNotesPanelSize(nextSize);
+        localStorage.setItem('focusNotesPanelSize', JSON.stringify(nextSize));
+      }
+    };
+
+    clampStoredPanelSize();
+    window.addEventListener('resize', clampStoredPanelSize);
+
+    return () => window.removeEventListener('resize', clampStoredPanelSize);
+  }, [notesPanelSize]);
+
   const startResizeNotesPanel = useCallback((event) => {
     event.preventDefault();
 
@@ -528,25 +553,31 @@ const FocusMode = () => {
         <button 
           className={`modefocus-button ${mode === 'focus' ? 'active' : ''}`}
           onClick={() => handleModeChange('focus')}
+          type="button"
+          aria-pressed={mode === 'focus'}
         >
           Focus
         </button>
         <button 
           className={`modefocus-button ${mode === 'break' ? 'active' : ''}`}
           onClick={() => handleModeChange('break')}
+          type="button"
+          aria-pressed={mode === 'break'}
         >
           Break
         </button>
       </div>
       
       <div className="timer-container">
-        <button className="play-button" onClick={toggleTimer}>
+        <button className="play-button" onClick={toggleTimer} type="button" aria-label={isActive ? 'Mettre le timer en pause' : 'Demarrer le timer'}>
           {isActive ? <IoPause size={15} /> : <IoPlay size={15} />}
         </button>
         <div className="focus-timer">{formatTime(timeLeft)}</div>
         <button 
           className={`reset-button ${isSpinning ? 'spinning' : ''}`} 
           onClick={handleReset}
+          type="button"
+          aria-label="Reinitialiser le timer"
         >
           <IoRefreshOutline size={35} />
         </button>
@@ -561,6 +592,7 @@ const FocusMode = () => {
         <input
           type="text"
           className="focus-input"
+          aria-label="Objectif de focus"
           value={focusText}
           onChange={(e) => {
             setFocusText(e.target.value);
@@ -578,6 +610,14 @@ const FocusMode = () => {
         <div 
           className="focus-subtitle"
           onClick={() => setIsEditingFocus(true)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              setIsEditingFocus(true);
+            }
+          }}
         >
           {focusText}
         </div>
@@ -617,11 +657,13 @@ const FocusMode = () => {
           </button>
         </div>
 
-        <div className="notes-tabs" aria-label="Choisir le type de note">
+        <div className="notes-tabs" role="tablist" aria-label="Choisir le type de note">
           <button
             className={`notes-tab ${noteView === 'notes' ? 'active' : ''}`}
             onClick={() => updateNoteView('notes')}
             type="button"
+            role="tab"
+            aria-selected={noteView === 'notes'}
           >
             <IoDocumentTextOutline size={16} />
             Notes
@@ -630,6 +672,8 @@ const FocusMode = () => {
             className={`notes-tab ${noteView === 'tasks' ? 'active' : ''}`}
             onClick={() => updateNoteView('tasks')}
             type="button"
+            role="tab"
+            aria-selected={noteView === 'tasks'}
           >
             <IoListOutline size={16} />
             Taches
@@ -647,10 +691,11 @@ const FocusMode = () => {
                 onKeyDown={handleNotesKeyDown}
                 onClick={(event) => updateSlashMenu(event.currentTarget)}
                 placeholder="Tape / pour ajouter un titre, une liste, une todo..."
+                aria-label="Notes de session"
                 autoFocus
               />
               {slashMenu.visible && (
-                <div className="slash-menu">
+                <div className="slash-menu" role="listbox" aria-label="Commandes de mise en forme">
                   {matchingSlashCommands.length > 0 ? (
                     matchingSlashCommands.map((command, index) => (
                       <button
@@ -674,7 +719,18 @@ const FocusMode = () => {
               )}
             </div>
           ) : (
-            <div className="notes-display" onClick={() => setIsEditing(true)}>
+            <div
+              className="notes-display"
+              onClick={() => setIsEditing(true)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  setIsEditing(true);
+                }
+              }}
+            >
               {renderFormattedNotes(notes)}
             </div>
           )
@@ -691,6 +747,7 @@ const FocusMode = () => {
                   }
                 }}
                 placeholder="Ajouter une tache..."
+                aria-label="Ajouter une tache"
               />
               <button className="task-add" onClick={handleAddTask} type="button" aria-label="Ajouter">
                 <IoAddOutline size={20} />
@@ -737,28 +794,6 @@ const FocusMode = () => {
         )}
       </div>
 
-      <div className="notes-container legacy-notes-container">
-        {isEditing ? (
-          <textarea
-            className="notes-textarea"
-            value={notes}
-            onChange={handleNotesChange}
-            placeholder="Qu'aimeriez-vous accomplir aujourd'hui ?"
-            autoFocus
-          />
-        ) : (
-          <div className="notes-display" onClick={() => setIsEditing(true)}>
-            {notes || "Cliquez pour ajouter des notes..."}
-          </div>
-        )}
-        <button 
-          className="notes-toggle"
-          onClick={() => setIsEditing(!isEditing)}
-          aria-label={isEditing ? "Sauvegarder" : "Éditer"}
-        >
-          {isEditing ? <IoSaveOutline size={20} /> : <IoPencilOutline size={20} />}
-        </button>
-      </div>
     </div>
   );
 };

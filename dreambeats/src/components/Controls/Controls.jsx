@@ -13,12 +13,13 @@ import {
 } from "react-icons/io5";
 import VolumeSlider from '../VolumeSlider/VolumeSlider';
 import YouTubePlayer from '../YouTubePlayer/YouTubePlayer';
-import { YOUTUBE_STREAMS, getNextStream, getPreviousStream } from '../../config/youtubeStreams';
+import { getNextStream, getPreviousStream } from '../../config/youtubeStreams';
 import './Controls.css';
 import NowPlaying from '../NowPlaying/NowPlaying';
 import Clock from '../Clock/Clock';
 import SceneButton from '../SceneButton/SceneButton';
 import SceneSelector from '../SceneSelector/SceneSelector';
+import { useAppContext } from '../../context/useAppContext';
 
 const iconProps = {
   size: 20,
@@ -43,10 +44,10 @@ const Controls = () => {
   const [volume, setVolume] = useState(35);
   const [timer, setTimer] = useState(null);
   const [player, setPlayer] = useState(null);
-  const [currentStreamId, setCurrentStreamId] = useState(YOUTUBE_STREAMS[0].id);
   const [streamStatus, setStreamStatus] = useState('loading');
   const [showScenes, setShowScenes] = useState(false);
   const [hideNowPlaying, setHideNowPlaying] = useState(false);
+  const { currentStreamId, updateCurrentStreamId } = useAppContext();
 
   const handleVolumeChange = useCallback((event, newValue) => {
     setVolume(newValue);
@@ -107,14 +108,14 @@ const Controls = () => {
 
   const handleNextTrack = () => {
     const nextStream = getNextStream(currentStreamId);
-    setCurrentStreamId(nextStream.id);
+    updateCurrentStreamId(nextStream.id);
     setStreamStatus('loading');
     setIsPlaying(true);
   };
 
   const handlePreviousTrack = () => {
     const previousStream = getPreviousStream(currentStreamId);
-    setCurrentStreamId(previousStream.id);
+    updateCurrentStreamId(previousStream.id);
     setStreamStatus('loading');
     setIsPlaying(true);
   };
@@ -166,6 +167,19 @@ const Controls = () => {
       console.error('Erreur lors du changement de vidéo:', error);
     }
   }, [currentStreamId, player]);
+
+  useEffect(() => {
+    if (streamStatus !== 'loading') return undefined;
+
+    const timeoutId = setTimeout(() => {
+      setStreamStatus(previousStatus => (
+        previousStatus === 'loading' ? 'unavailable' : previousStatus
+      ));
+      setIsPlaying(false);
+    }, 12000);
+
+    return () => clearTimeout(timeoutId);
+  }, [currentStreamId, streamStatus]);
 
   useEffect(() => {
     let timeoutId;
@@ -226,7 +240,7 @@ const Controls = () => {
         onMouseLeave={handleMouseLeave}
       >
         <div className="dreambeats__musicControls-wrapper">
-          <div className="dreambeats__musicControls-container">
+          <div className="dreambeats__musicControls-stack">
             <YouTubePlayer 
               onPlayerReady={handlePlayerReady} 
               onPlayerStateChange={handlePlayerStateChange}
@@ -235,39 +249,49 @@ const Controls = () => {
             />
             <div className={`dreambeats__musicControls-container ${showVolume ? 'show-volume' : ''}`}>
               <div className="dreambeats__musicControls-buttons">
-                <div 
+                <button
                   onClick={handlePreviousTrack} 
                   className="dreambeats__musicControls-button"
+                  type="button"
+                  aria-label="Station precedente"
                 >
                   <BsFillSkipBackwardFill {...iconProps} />
-                </div>
-                <div 
+                </button>
+                <button
                   onClick={() => setIsPlaying(!isPlaying)} 
                   className="dreambeats__musicControls-button"
+                  type="button"
+                  aria-label={isPlaying ? 'Mettre en pause' : 'Lire'}
                 >
                   {isPlaying ? <FaPause {...iconProps} /> : <FaPlay {...iconProps} />}
-                </div>
-                <div 
+                </button>
+                <button
                   onClick={handleNextTrack} 
                   className="dreambeats__musicControls-button"
+                  type="button"
+                  aria-label="Station suivante"
                 >
                   <BsSkipForwardFill {...iconProps} />
-                </div>
-                <div 
+                </button>
+                <button
                   onMouseEnter={() => setShowVolume(true)}
                   className="dreambeats__musicControls-button"
+                  type="button"
+                  aria-label="Afficher le volume"
                 >
                   <IoVolumeMedium {...iconProps} />
-                </div>
-                <div 
+                </button>
+                <button
                   onClick={handleMuteClick}
                   className="dreambeats__musicControls-button"
+                  type="button"
+                  aria-label={isMuted ? 'Reactiver le son' : 'Couper le son'}
                 >
                   <IoVolumeMute {...iconProps} style={{ 
                     ...iconProps.style, 
                     color: isMuted ? '#4A8B8C' : 'white' 
                   }} />
-                </div>
+                </button>
               </div>
               {showVolume && (
                 <div className="dreambeats__musicControls_volume-slider">
@@ -287,6 +311,11 @@ const Controls = () => {
         currentStreamId={currentStreamId} 
         streamStatus={streamStatus}
         hideOnMobile={hideNowPlaying}
+        onNextTrack={handleNextTrack}
+        onRetry={() => {
+          setStreamStatus('loading');
+          setIsPlaying(true);
+        }}
       />
       <SceneSelector 
         isVisible={showScenes} 

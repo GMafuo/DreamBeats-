@@ -1,19 +1,19 @@
 export const YOUTUBE_STREAMS = [
   {
-    id: 'jfKfPfyJRdk',
-    title: 'lofi hip hop radio 📚 - beats to relax/study to',
-    channel: 'Lofi Girl'
+    id: 'X4VbdwhkE10',
+    title: '📚 Lofi cozy study beats',
+    channel: 'Lofi Girl',
   },
   {
-    id: '4xDzrJKXOOY',
-    title: 'synthwave radio 🌌 - beats to chill/game to',
-    channel: 'Lofi Girl'
+    id: '5yx6BWlEVcY',
+    title: '🐾 Chillhop jazzy comfort',
+    channel: 'Chillhop Music',
   },
   {
-    id: 'TfmECBzmOn4',
-    title: 'Lofi Hip Hop Radio 🍉 Relaxing Beats to Study, Sleep, Chill to 24/7',
-    channel: 'Lofi Fruits'
-  }
+    id: '7hfTa8nXKk8',
+    title: '🌧️ Rainy night lofi escape',
+    channel: 'Chilled Music',
+  },
 ];
 
 export const getNextStream = (currentId) => {
@@ -26,4 +26,4 @@ export const getPreviousStream = (currentId) => {
   const currentIndex = YOUTUBE_STREAMS.findIndex(stream => stream.id === currentId);
   const previousIndex = currentIndex === 0 ? YOUTUBE_STREAMS.length - 1 : currentIndex - 1;
   return YOUTUBE_STREAMS[previousIndex];
-}; 
+};

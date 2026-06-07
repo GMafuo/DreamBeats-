@@ -20,7 +20,7 @@
 }
 
 .focus-timer {
-  font-size: 7rem;
+  font-size: clamp(4.5rem, 12vw, 7rem);
   color: white;
   font-weight: bold;
   letter-spacing: 2px;
@@ -45,9 +45,9 @@
   outline: none;
 }
 
-.play-button:focus {
-  outline: none;
-  box-shadow: none;
+.play-button:focus-visible {
+  outline: 2px solid var(--color-primary-bright);
+  outline-offset: 4px;
 }
 
 .play-button:hover {
@@ -71,9 +71,9 @@
   outline: none;
 }
 
-.reset-button:focus {
-  outline: none;
-  box-shadow: none;
+.reset-button:focus-visible {
+  outline: 2px solid var(--color-primary-bright);
+  outline-offset: 4px;
 }
 
 .reset-button.spinning {
@@ -265,7 +265,7 @@
   position: absolute;
   touch-action: none;
   width: 34px;
-  z-index: 2;
+  z-index: var(--z-content);
 }
 
 .notes-resize-handle::before,
@@ -294,10 +294,6 @@
 .notes-resize-handle:hover {
   background: rgba(116, 190, 191, 0.28);
   border-color: rgba(116, 190, 191, 0.55);
-}
-
-.legacy-notes-container {
-  display: none;
 }
 
 .notes-container:hover {
@@ -704,6 +700,11 @@
 }
 
 @media screen and (max-width: 768px) {
+  .focus-quote {
+    bottom: 108px;
+    font-size: 0.72rem;
+  }
+
   .notes-container {
     top: 1rem;
     right: 1rem;

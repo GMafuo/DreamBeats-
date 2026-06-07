@@ -9,7 +9,13 @@ const statusLabels = {
   unavailable: 'STATION INDISPONIBLE',
 };
 
-const NowPlaying = ({ currentStreamId, streamStatus = 'loading', hideOnMobile = false }) => {
+const NowPlaying = ({
+  currentStreamId,
+  streamStatus = 'loading',
+  hideOnMobile = false,
+  onNextTrack,
+  onRetry,
+}) => {
   const [isVisible, setIsVisible] = useState(true);
   const currentStream = YOUTUBE_STREAMS.find(stream => stream.id === currentStreamId);
   const isUnavailable = streamStatus === 'unavailable';
@@ -49,6 +55,12 @@ const NowPlaying = ({ currentStreamId, streamStatus = 'loading', hideOnMobile = 
           <span className="channel">
             {isUnavailable ? 'Change de piste pour continuer la session.' : currentStream?.channel}
           </span>
+          {isUnavailable && (
+            <div className="dreambeats__nowPlaying-actions">
+              <button type="button" onClick={onRetry}>Reessayer</button>
+              <button type="button" onClick={onNextTrack}>Station suivante</button>
+            </div>
+          )}
         </div>
       </div>
     </div>

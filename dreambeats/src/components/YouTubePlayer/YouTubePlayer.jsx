@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { YOUTUBE_STREAMS } from '../../config/youtubeStreams';
+import './YouTubePlayer.css';
 
 const YouTubePlayer = ({ onPlayerReady, onPlayerStateChange, onPlayerError, currentStreamId }) => {
   const playerRef = useRef(null);
@@ -82,7 +83,7 @@ const YouTubePlayer = ({ onPlayerReady, onPlayerStateChange, onPlayerError, curr
     };
   }, []);
 
-  return <div id="youtube-player" />;
+  return <div id="youtube-player" aria-hidden="true" />;
 };
 
 export default YouTubePlayer; 
