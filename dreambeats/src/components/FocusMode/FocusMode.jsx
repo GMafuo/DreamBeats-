@@ -40,6 +40,66 @@ const getStoredNotesPanelSize = () => {
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
+const SLASH_COMMANDS = [
+  { id: 'title-1', trigger: 'titre1', label: 'Titre 1', hint: 'Grand titre de section', template: '# ', cursorOffset: 2 },
+  { id: 'title-2', trigger: 'titre2', label: 'Titre 2', hint: 'Sous-section', template: '## ', cursorOffset: 3 },
+  { id: 'title-3', trigger: 'titre3', label: 'Titre 3', hint: 'Petit titre', template: '### ', cursorOffset: 4 },
+  { id: 'list', trigger: 'liste', label: 'Liste', hint: 'Liste a puces', template: '- ', cursorOffset: 2 },
+  { id: 'todo', trigger: 'todo', label: 'Todo', hint: 'Case a cocher', template: '- [ ] ', cursorOffset: 6 },
+  { id: 'quote', trigger: 'citation', label: 'Citation', hint: 'Bloc mis en avant', template: '> ', cursorOffset: 2 },
+  { id: 'code', trigger: 'code', label: 'Code', hint: 'Bloc de code', template: '```\n\n```', cursorOffset: 4 },
+  { id: 'divider', trigger: 'separateur', label: 'Separateur', hint: 'Ligne de separation', template: '---\n', cursorOffset: 4 },
+];
+
+const getMatchingSlashCommands = (query) => (
+  SLASH_COMMANDS.filter(command => (
+    command.trigger.includes(query) ||
+    command.label.toLowerCase().includes(query)
+  ))
+);
+
+const renderFormattedNotes = (content) => {
+  if (!content.trim()) {
+    return 'Clique pour ajouter des notes...';
+  }
+
+  return content.split('\n').map((line, index) => {
+    if (line.startsWith('### ')) {
+      return <h5 className="note-heading note-heading-three" key={index}>{line.slice(4)}</h5>;
+    }
+
+    if (line.startsWith('## ')) {
+      return <h4 className="note-heading note-heading-two" key={index}>{line.slice(3)}</h4>;
+    }
+
+    if (line.startsWith('# ')) {
+      return <h3 className="note-heading note-heading-one" key={index}>{line.slice(2)}</h3>;
+    }
+
+    if (line.startsWith('- [ ] ')) {
+      return <div className="note-todo" key={index}><span></span>{line.slice(6)}</div>;
+    }
+
+    if (line.startsWith('- ')) {
+      return <div className="note-list-item" key={index}>{line.slice(2)}</div>;
+    }
+
+    if (line.startsWith('> ')) {
+      return <blockquote className="note-quote" key={index}>{line.slice(2)}</blockquote>;
+    }
+
+    if (line === '---') {
+      return <hr className="note-divider" key={index} />;
+    }
+
+    if (line.startsWith('```')) {
+      return <code className="note-code-line" key={index}>{line.replaceAll('`', '') || 'code'}</code>;
+    }
+
+    return <p className="note-paragraph" key={index}>{line || '\u00A0'}</p>;
+  });
+};
+
 const FocusMode = () => {
   const { focusTime, shortBreakTime } = useAppContext();
   const [mode, setMode] = useState('focus');
@@ -53,12 +113,15 @@ const FocusMode = () => {
   const [taskInput, setTaskInput] = useState('');
   const [noteView, setNoteView] = useState(localStorage.getItem('focusNoteView') || 'notes');
   const [notesPanelSize, setNotesPanelSize] = useState(getStoredNotesPanelSize);
+  const [slashMenu, setSlashMenu] = useState({ visible: false, query: '', lineStart: 0, lineEnd: 0 });
+  const [activeSlashCommandIndex, setActiveSlashCommandIndex] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [focusText, setFocusText] = useState(localStorage.getItem('focusText') || 'Creating my dreams');
   const [isEditingFocus, setIsEditingFocus] = useState(false);
   const [quote] = useState(QUOTES[new Date().getDate() % QUOTES.length]);
   const [audio] = useState(new Audio(notificationSound));
   const notesPanelRef = useRef(null);
+  const notesTextareaRef = useRef(null);
 
   const FOCUS_TIME = focusTime * 60;
   const BREAK_TIME = shortBreakTime * 60;
@@ -279,11 +342,91 @@ const FocusMode = () => {
     }
   }, [focusTime, shortBreakTime, mode, isActive, isPaused]);
 
+  const getSlashContext = useCallback((textarea) => {
+    const cursor = textarea.selectionStart;
+    const value = textarea.value;
+    const lineStart = value.lastIndexOf('\n', cursor - 1) + 1;
+    const lineEndIndex = value.indexOf('\n', cursor);
+    const lineEnd = lineEndIndex === -1 ? value.length : lineEndIndex;
+    const currentLine = value.slice(lineStart, cursor);
+
+    if (!currentLine.startsWith('/') || currentLine.includes(' ')) {
+      return null;
+    }
+
+    return {
+      visible: true,
+      query: currentLine.slice(1).toLowerCase(),
+      lineStart,
+      lineEnd,
+    };
+  }, []);
+
+  const updateSlashMenu = useCallback((textarea) => {
+    const slashContext = getSlashContext(textarea);
+
+    if (!slashContext) {
+      setSlashMenu({ visible: false, query: '', lineStart: 0, lineEnd: 0 });
+      return;
+    }
+
+    setSlashMenu(slashContext);
+    setActiveSlashCommandIndex(0);
+  }, [getSlashContext]);
+
   const handleNotesChange = useCallback((e) => {
     const newNotes = e.target.value;
     setNotes(newNotes);
     localStorage.setItem('focusNotes', newNotes);
-  }, []);
+    updateSlashMenu(e.target);
+  }, [updateSlashMenu]);
+
+  const applySlashCommand = useCallback((command, context = slashMenu) => {
+    const textarea = notesTextareaRef.current;
+    if (!textarea || !command) return;
+
+    const value = textarea.value;
+    const nextNotes = `${value.slice(0, context.lineStart)}${command.template}${value.slice(context.lineEnd)}`;
+    const nextCursor = context.lineStart + command.cursorOffset;
+
+    setNotes(nextNotes);
+    localStorage.setItem('focusNotes', nextNotes);
+    setSlashMenu({ visible: false, query: '', lineStart: 0, lineEnd: 0 });
+
+    requestAnimationFrame(() => {
+      textarea.focus();
+      textarea.setSelectionRange(nextCursor, nextCursor);
+    });
+  }, [slashMenu]);
+
+  const handleNotesKeyDown = useCallback((event) => {
+    const matchingCommands = getMatchingSlashCommands(slashMenu.query);
+
+    if (slashMenu.visible && matchingCommands.length > 0) {
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        setActiveSlashCommandIndex(index => (index + 1) % matchingCommands.length);
+        return;
+      }
+
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        setActiveSlashCommandIndex(index => (index - 1 + matchingCommands.length) % matchingCommands.length);
+        return;
+      }
+
+      if (event.key === 'Enter' || event.key === 'Tab') {
+        event.preventDefault();
+        applySlashCommand(matchingCommands[activeSlashCommandIndex] || matchingCommands[0]);
+        return;
+      }
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setSlashMenu({ visible: false, query: '', lineStart: 0, lineEnd: 0 });
+      }
+    }
+  }, [activeSlashCommandIndex, applySlashCommand, slashMenu]);
 
   const updateNoteView = useCallback((view) => {
     setNoteView(view);
@@ -325,6 +468,7 @@ const FocusMode = () => {
   }, [persistTasks, tasks]);
 
   const completedTasks = tasks.filter(task => task.done).length;
+  const matchingSlashCommands = slashMenu.visible ? getMatchingSlashCommands(slashMenu.query) : [];
 
   const startResizeNotesPanel = useCallback((event) => {
     event.preventDefault();
@@ -494,16 +638,44 @@ const FocusMode = () => {
 
         {noteView === 'notes' ? (
           isEditing ? (
-            <textarea
-              className="notes-textarea"
-              value={notes}
-              onChange={handleNotesChange}
-              placeholder="Ce que je veux garder en tete..."
-              autoFocus
-            />
+            <div className="notes-editor">
+              <textarea
+                ref={notesTextareaRef}
+                className="notes-textarea"
+                value={notes}
+                onChange={handleNotesChange}
+                onKeyDown={handleNotesKeyDown}
+                onClick={(event) => updateSlashMenu(event.currentTarget)}
+                placeholder="Tape / pour ajouter un titre, une liste, une todo..."
+                autoFocus
+              />
+              {slashMenu.visible && (
+                <div className="slash-menu">
+                  {matchingSlashCommands.length > 0 ? (
+                    matchingSlashCommands.map((command, index) => (
+                      <button
+                        className={`slash-command ${index === activeSlashCommandIndex ? 'active' : ''}`}
+                        key={command.id}
+                        onMouseDown={(event) => {
+                          event.preventDefault();
+                          applySlashCommand(command);
+                        }}
+                        type="button"
+                      >
+                        <span>/{command.trigger}</span>
+                        <strong>{command.label}</strong>
+                        <small>{command.hint}</small>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="slash-command-empty">Aucune commande</div>
+                  )}
+                </div>
+              )}
+            </div>
           ) : (
             <div className="notes-display" onClick={() => setIsEditing(true)}>
-              {notes || "Clique pour ajouter des notes..."}
+              {renderFormattedNotes(notes)}
             </div>
           )
         ) : (
