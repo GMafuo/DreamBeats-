@@ -1,5 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
-import { IoRefreshOutline, IoPlay, IoPause, IoPencilOutline, IoSaveOutline } from 'react-icons/io5';
+import {
+  IoAddOutline,
+  IoCheckboxOutline,
+  IoDocumentTextOutline,
+  IoListOutline,
+  IoPause,
+  IoPencilOutline,
+  IoPlay,
+  IoRefreshOutline,
+  IoSaveOutline,
+  IoSquareOutline,
+  IoTrashOutline,
+} from 'react-icons/io5';
 import { IoHeartOutline, IoHeart } from 'react-icons/io5';
 import './FocusMode.css';
 import { useAppContext } from '../../context/useAppContext';
@@ -10,6 +22,14 @@ const datGuiPath = `${BASE_PATH}/assets/dat.gui.min.js`;
 const notificationSound = `${BASE_PATH}/assets/notification.mp3`;
 const TOTAL_SESSIONS = 4;
 
+const getStoredTasks = () => {
+  try {
+    return JSON.parse(localStorage.getItem('focusTasks')) || [];
+  } catch {
+    return [];
+  }
+};
+
 const FocusMode = () => {
   const { focusTime, shortBreakTime } = useAppContext();
   const [mode, setMode] = useState('focus');
@@ -19,6 +39,9 @@ const FocusMode = () => {
   const [sessionCount, setSessionCount] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
   const [notes, setNotes] = useState(localStorage.getItem('focusNotes') || '');
+  const [tasks, setTasks] = useState(getStoredTasks);
+  const [taskInput, setTaskInput] = useState('');
+  const [noteView, setNoteView] = useState(localStorage.getItem('focusNoteView') || 'notes');
   const [isEditing, setIsEditing] = useState(false);
   const [focusText, setFocusText] = useState(localStorage.getItem('focusText') || 'Creating my dreams');
   const [isEditingFocus, setIsEditingFocus] = useState(false);
@@ -250,6 +273,47 @@ const FocusMode = () => {
     localStorage.setItem('focusNotes', newNotes);
   }, []);
 
+  const updateNoteView = useCallback((view) => {
+    setNoteView(view);
+    localStorage.setItem('focusNoteView', view);
+  }, []);
+
+  const persistTasks = useCallback((nextTasks) => {
+    setTasks(nextTasks);
+    localStorage.setItem('focusTasks', JSON.stringify(nextTasks));
+  }, []);
+
+  const handleAddTask = useCallback(() => {
+    const label = taskInput.trim();
+    if (!label) return;
+
+    persistTasks([
+      ...tasks,
+      {
+        id: crypto.randomUUID?.() || `${Date.now()}-${Math.random()}`,
+        label,
+        done: false,
+      },
+    ]);
+    setTaskInput('');
+  }, [persistTasks, taskInput, tasks]);
+
+  const handleToggleTask = useCallback((taskId) => {
+    persistTasks(tasks.map(task => (
+      task.id === taskId ? { ...task, done: !task.done } : task
+    )));
+  }, [persistTasks, tasks]);
+
+  const handleRemoveTask = useCallback((taskId) => {
+    persistTasks(tasks.filter(task => task.id !== taskId));
+  }, [persistTasks, tasks]);
+
+  const clearCompletedTasks = useCallback(() => {
+    persistTasks(tasks.filter(task => !task.done));
+  }, [persistTasks, tasks]);
+
+  const completedTasks = tasks.filter(task => task.done).length;
+
   return (
     <div className="dreambeats__focus-mode">
       <div className="focus-controls">
@@ -295,7 +359,7 @@ const FocusMode = () => {
             localStorage.setItem('focusText', e.target.value);
           }}
           onBlur={() => setIsEditingFocus(false)}
-          onKeyPress={(e) => {
+          onKeyDown={(e) => {
             if (e.key === 'Enter') {
               setIsEditingFocus(false);
             }
@@ -317,6 +381,114 @@ const FocusMode = () => {
       </div>
 
       <div className="notes-container">
+        <div className="notes-header">
+          <div>
+            <span className="notes-kicker">Focus board</span>
+            <h2>Notes de session</h2>
+          </div>
+          <button
+            className="notes-toggle"
+            onClick={() => setIsEditing(!isEditing)}
+            aria-label={isEditing ? "Sauvegarder" : "Editer"}
+            type="button"
+          >
+            {isEditing ? <IoSaveOutline size={20} /> : <IoPencilOutline size={20} />}
+          </button>
+        </div>
+
+        <div className="notes-tabs" aria-label="Choisir le type de note">
+          <button
+            className={`notes-tab ${noteView === 'notes' ? 'active' : ''}`}
+            onClick={() => updateNoteView('notes')}
+            type="button"
+          >
+            <IoDocumentTextOutline size={16} />
+            Notes
+          </button>
+          <button
+            className={`notes-tab ${noteView === 'tasks' ? 'active' : ''}`}
+            onClick={() => updateNoteView('tasks')}
+            type="button"
+          >
+            <IoListOutline size={16} />
+            Taches
+          </button>
+        </div>
+
+        {noteView === 'notes' ? (
+          isEditing ? (
+            <textarea
+              className="notes-textarea"
+              value={notes}
+              onChange={handleNotesChange}
+              placeholder="Ce que je veux garder en tete..."
+              autoFocus
+            />
+          ) : (
+            <div className="notes-display" onClick={() => setIsEditing(true)}>
+              {notes || "Clique pour ajouter des notes..."}
+            </div>
+          )
+        ) : (
+          <div className="tasks-panel">
+            <div className="task-input-row">
+              <input
+                className="task-input"
+                value={taskInput}
+                onChange={(event) => setTaskInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    handleAddTask();
+                  }
+                }}
+                placeholder="Ajouter une tache..."
+              />
+              <button className="task-add" onClick={handleAddTask} type="button" aria-label="Ajouter">
+                <IoAddOutline size={20} />
+              </button>
+            </div>
+
+            <div className="task-list">
+              {tasks.length === 0 ? (
+                <div className="task-empty">Aucune tache pour cette session.</div>
+              ) : (
+                tasks.map(task => (
+                  <div className={`task-item ${task.done ? 'done' : ''}`} key={task.id}>
+                    <button
+                      className="task-check"
+                      onClick={() => handleToggleTask(task.id)}
+                      type="button"
+                      aria-label={task.done ? "Marquer a faire" : "Marquer fait"}
+                    >
+                      {task.done ? <IoCheckboxOutline size={20} /> : <IoSquareOutline size={20} />}
+                    </button>
+                    <span>{task.label}</span>
+                    <button
+                      className="task-remove"
+                      onClick={() => handleRemoveTask(task.id)}
+                      type="button"
+                      aria-label="Supprimer"
+                    >
+                      <IoTrashOutline size={17} />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="task-footer">
+              <span>{completedTasks}/{tasks.length} termine</span>
+              {completedTasks > 0 && (
+                <button onClick={clearCompletedTasks} type="button">
+                  Nettoyer
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="notes-container legacy-notes-container">
         {isEditing ? (
           <textarea
             className="notes-textarea"

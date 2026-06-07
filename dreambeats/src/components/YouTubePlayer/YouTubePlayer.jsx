@@ -1,14 +1,24 @@
 import { useEffect, useRef } from 'react';
 import { YOUTUBE_STREAMS } from '../../config/youtubeStreams';
 
-const YouTubePlayer = ({ onPlayerReady, currentStreamId }) => {
+const YouTubePlayer = ({ onPlayerReady, onPlayerStateChange, onPlayerError, currentStreamId }) => {
   const playerRef = useRef(null);
   const initialStreamIdRef = useRef(currentStreamId || YOUTUBE_STREAMS[0].id);
   const onPlayerReadyRef = useRef(onPlayerReady);
+  const onPlayerStateChangeRef = useRef(onPlayerStateChange);
+  const onPlayerErrorRef = useRef(onPlayerError);
 
   useEffect(() => {
     onPlayerReadyRef.current = onPlayerReady;
   }, [onPlayerReady]);
+
+  useEffect(() => {
+    onPlayerStateChangeRef.current = onPlayerStateChange;
+  }, [onPlayerStateChange]);
+
+  useEffect(() => {
+    onPlayerErrorRef.current = onPlayerError;
+  }, [onPlayerError]);
 
   useEffect(() => {
     const initializePlayer = () => {
@@ -33,8 +43,12 @@ const YouTubePlayer = ({ onPlayerReady, currentStreamId }) => {
           onReady: (event) => {
             onPlayerReadyRef.current?.(event.target);
           },
+          onStateChange: (event) => {
+            onPlayerStateChangeRef.current?.(event.data);
+          },
           onError: (error) => {
             console.error('YouTube Player Error:', error);
+            onPlayerErrorRef.current?.(error.data);
           }
         },
       });

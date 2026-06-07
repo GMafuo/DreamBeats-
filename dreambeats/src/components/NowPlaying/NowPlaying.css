@@ -51,6 +51,22 @@
   animation: pulseAnimation 2s infinite;
 }
 
+.dreambeats__nowPlaying-hybrid.unavailable .dreambeats__nowPlaying-hybrid-wave {
+  background: linear-gradient(90deg, #d66b4d 0%, #b94c4c 100%);
+  animation: none;
+}
+
+.dreambeats__nowPlaying-hybrid.unavailable .dreambeats__nowPlaying-hybrid-icon {
+  color: #d66b4d;
+  animation: none;
+}
+
+.dreambeats__nowPlaying-hybrid.unavailable .label {
+  background: linear-gradient(90deg, #d66b4d, #b94c4c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 .dreambeats__nowPlaying-hybrid-content {
   flex: 1;
 }

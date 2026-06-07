@@ -233,22 +233,80 @@
   position: fixed;
   top: 1.5rem;
   right: 1.5rem;
-  width: 250px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 1rem;
+  width: min(330px, calc(100vw - 2rem));
+  background: rgba(18, 22, 28, 0.68);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  padding: 0.9rem;
   transition: all 0.3s ease;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.2);
+}
+
+.legacy-notes-container {
+  display: none;
 }
 
 .notes-container:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(18, 22, 28, 0.78);
+}
+
+.notes-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.notes-header h2 {
+  color: white;
+  font-size: 1rem;
+  line-height: 1.2;
+  margin: 0.1rem 0 0;
+  font-weight: 650;
+}
+
+.notes-kicker {
+  color: rgba(255, 255, 255, 0.55);
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.notes-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.notes-tab {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.72);
+  display: flex;
+  font-size: 0.78rem;
+  gap: 0.35rem;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0.35rem 0.55rem;
+}
+
+.notes-tab.active {
+  background: rgba(74, 139, 140, 0.32);
+  border-color: rgba(116, 190, 191, 0.5);
+  color: white;
 }
 
 .notes-textarea,
 .notes-display {
   width: 100%;
-  min-height: 100px;
+  min-height: 138px;
   background: none;
   border: none;
   color: white;
@@ -261,6 +319,7 @@
 .notes-textarea {
   outline: none;
   padding: 0;
+  max-height: 240px;
 }
 
 .notes-display {
@@ -270,9 +329,6 @@
 }
 
 .notes-toggle {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
   background: none;
   border: none;
   color: rgba(255, 255, 255, 0.6);
@@ -289,6 +345,131 @@
 
 .notes-container:focus-within {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.tasks-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.task-input-row {
+  align-items: center;
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: 1fr 36px;
+}
+
+.task-input {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: white;
+  font-family: inherit;
+  font-size: 0.85rem;
+  min-height: 36px;
+  outline: none;
+  padding: 0 0.75rem;
+}
+
+.task-input:focus {
+  border-color: rgba(116, 190, 191, 0.7);
+}
+
+.task-input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.task-add,
+.task-check,
+.task-remove {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: white;
+  display: flex;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0;
+}
+
+.task-add:hover,
+.task-check:hover,
+.task-remove:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 190px;
+  overflow-y: auto;
+  padding-right: 0.15rem;
+}
+
+.task-item {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.9);
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: 30px 1fr 30px;
+  min-height: 40px;
+  padding: 0.3rem;
+}
+
+.task-item span {
+  font-size: 0.84rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.task-item.done span {
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: line-through;
+}
+
+.task-check,
+.task-remove {
+  min-height: 30px;
+}
+
+.task-check {
+  color: #74bebf;
+}
+
+.task-remove {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.task-empty {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.82rem;
+  min-height: 90px;
+  padding: 1.6rem 0.5rem;
+  text-align: center;
+}
+
+.task-footer {
+  align-items: center;
+  color: rgba(255, 255, 255, 0.58);
+  display: flex;
+  font-size: 0.75rem;
+  justify-content: space-between;
+}
+
+.task-footer button {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.75rem;
+  padding: 0.2rem 0;
 }
 
 /* Placeholder styling */

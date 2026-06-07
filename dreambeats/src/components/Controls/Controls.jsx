@@ -26,6 +26,15 @@ const iconProps = {
   style: { cursor: "pointer" },
 };
 
+const PLAYER_STATE = {
+  UNSTARTED: -1,
+  ENDED: 0,
+  PLAYING: 1,
+  PAUSED: 2,
+  BUFFERING: 3,
+  CUED: 5,
+};
+
 const Controls = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
@@ -35,6 +44,7 @@ const Controls = () => {
   const [timer, setTimer] = useState(null);
   const [player, setPlayer] = useState(null);
   const [currentStreamId, setCurrentStreamId] = useState(YOUTUBE_STREAMS[0].id);
+  const [streamStatus, setStreamStatus] = useState('loading');
   const [showScenes, setShowScenes] = useState(false);
   const [hideNowPlaying, setHideNowPlaying] = useState(false);
 
@@ -66,23 +76,46 @@ const Controls = () => {
   }, [startTimer]);
 
   const handlePlayerReady = useCallback((ytPlayer) => {
-    console.log('Player ready in Controls');
     setPlayer(ytPlayer);
+    setStreamStatus('loading');
+  }, []);
+
+  const handlePlayerStateChange = useCallback((state) => {
+    if (state === PLAYER_STATE.PLAYING) {
+      setStreamStatus('playing');
+      return;
+    }
+
+    if (state === PLAYER_STATE.BUFFERING || state === PLAYER_STATE.UNSTARTED || state === PLAYER_STATE.CUED) {
+      setStreamStatus(previousStatus => (
+        previousStatus === 'unavailable' ? previousStatus : 'loading'
+      ));
+      return;
+    }
+
+    if (state === PLAYER_STATE.PAUSED) {
+      setStreamStatus(previousStatus => (
+        previousStatus === 'unavailable' ? previousStatus : 'paused'
+      ));
+    }
+  }, []);
+
+  const handlePlayerError = useCallback(() => {
+    setStreamStatus('unavailable');
+    setIsPlaying(false);
   }, []);
 
   const handleNextTrack = () => {
-    console.log('Next track clicked');
     const nextStream = getNextStream(currentStreamId);
-    console.log('Next stream:', nextStream);
     setCurrentStreamId(nextStream.id);
+    setStreamStatus('loading');
     setIsPlaying(true);
   };
 
   const handlePreviousTrack = () => {
-    console.log('Previous track clicked');
     const previousStream = getPreviousStream(currentStreamId);
-    console.log('Previous stream:', previousStream);
     setCurrentStreamId(previousStream.id);
+    setStreamStatus('loading');
     setIsPlaying(true);
   };
 
@@ -91,7 +124,6 @@ const Controls = () => {
     if (!player) return;
     
     try {
-      console.log('État de lecture actuel:', isPlaying);
       if (isPlaying) {
         player.playVideo();
       } else {
@@ -105,12 +137,10 @@ const Controls = () => {
   // Gestion du volume et du mute
   useEffect(() => {
     if (!player) {
-      console.log('Player not ready for volume control');
       return;
     }
 
     try {
-      console.log('Attempting to control volume:', { isMuted, volume });
       if (isMuted) {
         player.mute();
       } else {
@@ -126,7 +156,7 @@ const Controls = () => {
     if (!player) return;
 
     try {
-      console.log('Chargement nouvelle vidéo:', currentStreamId);
+      setStreamStatus('loading');
       player.loadVideoById({
         videoId: currentStreamId,
         startSeconds: 0,
@@ -164,7 +194,6 @@ const Controls = () => {
   };
 
   const handleMuteClick = () => {
-    console.log('Mute clicked, current state:', isMuted);
     setIsMuted(!isMuted);
   };
 
@@ -200,6 +229,8 @@ const Controls = () => {
           <div className="dreambeats__musicControls-container">
             <YouTubePlayer 
               onPlayerReady={handlePlayerReady} 
+              onPlayerStateChange={handlePlayerStateChange}
+              onPlayerError={handlePlayerError}
               currentStreamId={currentStreamId}
             />
             <div className={`dreambeats__musicControls-container ${showVolume ? 'show-volume' : ''}`}>
@@ -254,6 +285,7 @@ const Controls = () => {
       </div>
       <NowPlaying 
         currentStreamId={currentStreamId} 
+        streamStatus={streamStatus}
         hideOnMobile={hideNowPlaying}
       />
       <SceneSelector 
