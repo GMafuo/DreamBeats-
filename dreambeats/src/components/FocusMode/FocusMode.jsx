@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   IoAddOutline,
   IoCheckboxOutline,
@@ -30,6 +30,16 @@ const getStoredTasks = () => {
   }
 };
 
+const getStoredNotesPanelSize = () => {
+  try {
+    return JSON.parse(localStorage.getItem('focusNotesPanelSize')) || null;
+  } catch {
+    return null;
+  }
+};
+
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
 const FocusMode = () => {
   const { focusTime, shortBreakTime } = useAppContext();
   const [mode, setMode] = useState('focus');
@@ -42,11 +52,13 @@ const FocusMode = () => {
   const [tasks, setTasks] = useState(getStoredTasks);
   const [taskInput, setTaskInput] = useState('');
   const [noteView, setNoteView] = useState(localStorage.getItem('focusNoteView') || 'notes');
+  const [notesPanelSize, setNotesPanelSize] = useState(getStoredNotesPanelSize);
   const [isEditing, setIsEditing] = useState(false);
   const [focusText, setFocusText] = useState(localStorage.getItem('focusText') || 'Creating my dreams');
   const [isEditingFocus, setIsEditingFocus] = useState(false);
   const [quote] = useState(QUOTES[new Date().getDate() % QUOTES.length]);
   const [audio] = useState(new Audio(notificationSound));
+  const notesPanelRef = useRef(null);
 
   const FOCUS_TIME = focusTime * 60;
   const BREAK_TIME = shortBreakTime * 60;
@@ -314,6 +326,58 @@ const FocusMode = () => {
 
   const completedTasks = tasks.filter(task => task.done).length;
 
+  const startResizeNotesPanel = useCallback((event) => {
+    event.preventDefault();
+
+    const panel = notesPanelRef.current;
+    if (!panel) return;
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const startRect = panel.getBoundingClientRect();
+    const minWidth = 260;
+    const minHeight = 230;
+    let nextSize = {
+      width: Math.round(startRect.width),
+      height: Math.round(startRect.height),
+    };
+    let animationFrameId = null;
+
+    const handlePointerMove = (moveEvent) => {
+      const maxWidth = Math.max(minWidth, window.innerWidth - 32);
+      const maxHeight = Math.max(minHeight, window.innerHeight - 32);
+      nextSize = {
+        width: Math.round(clamp(startRect.width + startX - moveEvent.clientX, minWidth, maxWidth)),
+        height: Math.round(clamp(startRect.height + moveEvent.clientY - startY, minHeight, maxHeight)),
+      };
+
+      if (animationFrameId !== null) return;
+
+      animationFrameId = requestAnimationFrame(() => {
+        panel.style.width = `${nextSize.width}px`;
+        panel.style.height = `${nextSize.height}px`;
+        animationFrameId = null;
+      });
+    };
+
+    const handlePointerUp = () => {
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+
+      panel.style.width = `${nextSize.width}px`;
+      panel.style.height = `${nextSize.height}px`;
+      setNotesPanelSize(nextSize);
+      localStorage.setItem('focusNotesPanelSize', JSON.stringify(nextSize));
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+    };
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+  }, []);
+
   return (
     <div className="dreambeats__focus-mode">
       <div className="focus-controls">
@@ -380,7 +444,20 @@ const FocusMode = () => {
         <span className="focus-quote-author">- {quote.author}</span>
       </div>
 
-      <div className="notes-container">
+      <div
+        className="notes-container"
+        ref={notesPanelRef}
+        style={{
+          width: notesPanelSize?.width ? `${notesPanelSize.width}px` : undefined,
+          height: notesPanelSize?.height ? `${notesPanelSize.height}px` : undefined,
+        }}
+      >
+        <button
+          className="notes-resize-handle"
+          onPointerDown={startResizeNotesPanel}
+          type="button"
+          aria-label="Redimensionner le panneau"
+        />
         <div className="notes-header">
           <div>
             <span className="notes-kicker">Focus board</span>

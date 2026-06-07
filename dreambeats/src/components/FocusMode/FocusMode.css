@@ -249,7 +249,51 @@
   display: flex;
   flex-direction: column;
   overflow: auto;
-  resize: both;
+}
+
+.notes-resize-handle {
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  bottom: 0.65rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.24);
+  cursor: nwse-resize;
+  height: 34px;
+  left: 0.65rem;
+  min-height: 34px;
+  padding: 0;
+  position: absolute;
+  touch-action: none;
+  width: 34px;
+  z-index: 2;
+}
+
+.notes-resize-handle::before,
+.notes-resize-handle::after {
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  content: '';
+  left: 9px;
+  position: absolute;
+  width: 16px;
+}
+
+.notes-resize-handle::before {
+  bottom: 11px;
+  height: 2px;
+  transform: rotate(-45deg);
+}
+
+.notes-resize-handle::after {
+  bottom: 17px;
+  height: 2px;
+  transform: rotate(-45deg);
+  width: 10px;
+}
+
+.notes-resize-handle:hover {
+  background: rgba(116, 190, 191, 0.28);
+  border-color: rgba(116, 190, 191, 0.55);
 }
 
 .legacy-notes-container {
@@ -479,6 +523,7 @@
   display: flex;
   font-size: 0.75rem;
   justify-content: space-between;
+  padding-left: 2.5rem;
 }
 
 .task-footer button {
