@@ -1,11 +1,11 @@
 .dreambeats__mode-toggle {
   position: fixed;
   bottom: 30px;
-  right: 20px;
+  right: var(--space-5);
   display: flex;
   align-items: center;
-  z-index: 1000;
-  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+  z-index: var(--z-overlay);
+  transition: opacity var(--transition-base), transform var(--transition-base);
 }
 
 .dreambeats__mode-toggle.hidden {
@@ -20,14 +20,14 @@
 }
 
 .toggle-container {
-  background: rgba(35, 35, 35, 0.88);
+  background: var(--color-surface-strong);
   backdrop-filter: blur(10px);
-  border-radius: 30px;
+  border-radius: var(--radius-pill);
   padding: 5px;
   display: flex;
   gap: 5px;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-panel);
+  border: 1px solid var(--color-border);
   position: relative;
 }
 
@@ -45,31 +45,31 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 8px;
-  background-color: rgba(35, 35, 35, 0.88);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-strong);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border);
   margin-left: 0.625rem;
-  transition: all 175ms ease-in-out;
+  transition: background var(--transition-base), transform var(--transition-base);
   padding: 0;
   z-index: 5;
   position: relative;
   cursor: pointer;
-  color: white;
+  color: var(--color-text);
 }
 
 .settings-button:hover,
 .fullscreen-button:hover {
-  background-color: rgba(55, 55, 55, 0.88);
+  background: rgba(255, 255, 255, 0.12);
   transform: scale(1.05);
 }
 
 .mode-button {
   background: none;
   border: none;
-  color: white;
+  color: var(--color-text);
   padding: 10px;
-  border-radius: 25px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
   position: relative;
   z-index: 2;
@@ -82,7 +82,7 @@
 }
 
 .mode-button.active {
-  color: #4CAF50;
+  color: var(--color-primary-bright);
 }
 
 .slider {
@@ -91,8 +91,8 @@
   left: 5px;
   width: 40px;
   height: 40px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 25px;
+  background: var(--color-surface-soft);
+  border-radius: var(--radius-pill);
   transition: transform 0.3s ease;
   z-index: 1;
 }
@@ -106,7 +106,7 @@
   padding: 12px;    
   border-radius: 10px;
   transition: all 0.3s ease;
-  background-color: var(--color-primary);
+  background: var(--color-surface-strong);
   align-items: center;
   justify-content: center;
   border-radius: 50%;

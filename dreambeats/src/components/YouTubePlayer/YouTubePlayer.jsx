@@ -1,8 +1,25 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { YOUTUBE_STREAMS } from '../../config/youtubeStreams';
+import './YouTubePlayer.css';
 
-const YouTubePlayer = ({ onPlayerReady, isPlaying, currentStreamId, onStreamChange }) => {
+const YouTubePlayer = ({ onPlayerReady, onPlayerStateChange, onPlayerError, currentStreamId }) => {
   const playerRef = useRef(null);
+  const initialStreamIdRef = useRef(currentStreamId || YOUTUBE_STREAMS[0].id);
+  const onPlayerReadyRef = useRef(onPlayerReady);
+  const onPlayerStateChangeRef = useRef(onPlayerStateChange);
+  const onPlayerErrorRef = useRef(onPlayerError);
+
+  useEffect(() => {
+    onPlayerReadyRef.current = onPlayerReady;
+  }, [onPlayerReady]);
+
+  useEffect(() => {
+    onPlayerStateChangeRef.current = onPlayerStateChange;
+  }, [onPlayerStateChange]);
+
+  useEffect(() => {
+    onPlayerErrorRef.current = onPlayerError;
+  }, [onPlayerError]);
 
   useEffect(() => {
     const initializePlayer = () => {
@@ -11,7 +28,7 @@ const YouTubePlayer = ({ onPlayerReady, isPlaying, currentStreamId, onStreamChan
       playerRef.current = new window.YT.Player('youtube-player', {
         height: '0',
         width: '0',
-        videoId: currentStreamId || YOUTUBE_STREAMS[0].id,
+        videoId: initialStreamIdRef.current,
         playerVars: {
           autoplay: 1,
           controls: 0,
@@ -25,11 +42,14 @@ const YouTubePlayer = ({ onPlayerReady, isPlaying, currentStreamId, onStreamChan
         },
         events: {
           onReady: (event) => {
-            console.log('YouTube Player Ready');
-            onPlayerReady(event.target);
+            onPlayerReadyRef.current?.(event.target);
+          },
+          onStateChange: (event) => {
+            onPlayerStateChangeRef.current?.(event.data);
           },
           onError: (error) => {
             console.error('YouTube Player Error:', error);
+            onPlayerErrorRef.current?.(error.data);
           }
         },
       });
@@ -61,9 +81,9 @@ const YouTubePlayer = ({ onPlayerReady, isPlaying, currentStreamId, onStreamChan
         playerRef.current = null;
       }
     };
-  }, [onPlayerReady, currentStreamId]);
+  }, []);
 
-  return <div id="youtube-player" />;
+  return <div id="youtube-player" aria-hidden="true" />;
 };
 
 export default YouTubePlayer; 

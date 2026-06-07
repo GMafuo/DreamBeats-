@@ -1,10 +1,9 @@
 import { AppProvider } from './context/AppContext';
 import Background from './components/Background/Background';
 import Controls from './components/Controls/Controls';
-import SceneSelector from './components/SceneSelector/SceneSelector';
 import ModeToggle from './components/ModeToggle/ModeToggle';
 import FocusMode from './components/FocusMode/FocusMode';
-import { useAppContext } from './context/AppContext';
+import { useAppContext } from './context/useAppContext';
 import logo from './assets/dreambeats-logo.png';
 import './App.css';
 import { useEffect } from 'react';
@@ -29,7 +28,6 @@ function AppContent() {
         <>
           <Background />
           <Controls />
-          <SceneSelector />
         </>
       ) : (
         <FocusMode />

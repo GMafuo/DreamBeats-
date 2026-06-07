@@ -1,19 +1,19 @@
 .dreambeats__nowPlaying {
   position: fixed;
-  bottom: 20px;
-  left: 20px;
-  z-index: 1000;
-  color: white;
-  background: rgba(0, 0, 0, 0.5);
+  bottom: var(--space-5);
+  left: var(--space-5);
+  z-index: var(--z-overlay);
+  color: var(--color-text);
+  background: var(--color-surface);
   backdrop-filter: blur(10px);
-  padding: 15px 20px;
-  border-radius: 15px;
-  max-width: 320px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  max-width: min(360px, calc(100vw - 40px));
+  box-shadow: var(--shadow-panel);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
-  text-align: justify;
+  border: 1px solid var(--color-border);
+  transition: opacity var(--transition-base), transform var(--transition-base);
+  text-align: left;
 }
 
 .dreambeats__nowPlaying.hidden {
@@ -35,48 +35,87 @@
 
 .dreambeats__nowPlaying-hybrid-wave {
   position: absolute;
-  bottom: -15px;
+  bottom: calc(var(--space-4) * -1);
   left: 0;
   width: 100%;
   height: 3px;
-  background: linear-gradient(90deg, #4CAF50 0%, #4A8B8C 100%);
+  background: linear-gradient(90deg, var(--color-success) 0%, var(--color-primary) 100%);
   animation: waveAnimation 2s infinite;
   opacity: 0.8;
 }
 
 .dreambeats__nowPlaying-hybrid-icon {
   font-size: 1.2rem;
-  color: #4CAF50;
-  margin-right: 15px;
+  color: var(--color-success);
+  margin-right: var(--space-4);
   animation: pulseAnimation 2s infinite;
+}
+
+.dreambeats__nowPlaying-hybrid.unavailable .dreambeats__nowPlaying-hybrid-wave {
+  background: linear-gradient(90deg, var(--color-warning) 0%, #b94c4c 100%);
+  animation: none;
+}
+
+.dreambeats__nowPlaying-hybrid.unavailable .dreambeats__nowPlaying-hybrid-icon {
+  color: var(--color-warning);
+  animation: none;
+}
+
+.dreambeats__nowPlaying-hybrid.unavailable .label {
+  background: linear-gradient(90deg, var(--color-warning), #b94c4c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .dreambeats__nowPlaying-hybrid-content {
   flex: 1;
+  min-width: 0;
 }
 
 .dreambeats__nowPlaying-hybrid-content .label {
   font-size: 0.7rem;
   letter-spacing: 2px;
   text-transform: uppercase;
-  opacity: 0.8;
-  background: linear-gradient(90deg, #4CAF50, #4A8B8C);
+  opacity: 0.9;
+  background: linear-gradient(90deg, var(--color-success), var(--color-primary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-weight: bold;
+  font-weight: 700;
 }
 
 .dreambeats__nowPlaying-hybrid-content h3 {
   margin: 5px 0;
   font-size: 1.1rem;
-  font-weight: 600;
-  color: white;
+  font-weight: 650;
+  color: var(--color-text);
 }
 
 .dreambeats__nowPlaying-hybrid-content .channel {
   font-size: 0.8rem;
-  opacity: 0.9;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--color-text-soft);
+}
+
+.dreambeats__nowPlaying-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.dreambeats__nowPlaying-actions button {
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 0.75rem;
+  min-height: 30px;
+  padding: 0 var(--space-3);
+  transition: background var(--transition-base), border-color var(--transition-base);
+}
+
+.dreambeats__nowPlaying-actions button:hover {
+  background: rgba(116, 190, 191, 0.18);
+  border-color: rgba(116, 190, 191, 0.42);
 }
 
 @keyframes pulseAnimation {
@@ -91,23 +130,18 @@
   100% { transform: translateX(100%); }
 }
 
-/* Ajustements généraux pour mobile */
 @media screen and (max-width: 768px) {
   .dreambeats__nowPlaying {
-    bottom: 120px; /* Espace suffisant au-dessus des contrôles */
+    bottom: 120px;
     left: 15px;
     right: 15px;
     max-width: calc(100% - 30px);
-    padding: 12px 15px;
-    background: rgba(35, 35, 35, 0.85);
-  }
-
-  .dreambeats__controls {
-    padding-bottom: 25px; /* Espace pour la zone de gesture */
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-surface-strong);
   }
 
   .dreambeats__nowPlaying-hybrid {
-    gap: 10px;
+    gap: var(--space-2);
   }
 
   .dreambeats__nowPlaying-hybrid-content h3 {
@@ -119,7 +153,6 @@
   }
 }
 
-/* Ajustements spécifiques pour les très petits écrans */
 @media screen and (max-width: 375px) {
   .dreambeats__nowPlaying {
     bottom: 70px;
@@ -137,25 +170,11 @@
 
 @media screen and (min-width: 390px) and (max-width: 428px) and (min-height: 844px) {
   .dreambeats__nowPlaying {
-    bottom: 100px; 
-    left: 15px;
-    right: 15px;
-    padding: 12px 15px;
-    background: rgba(35, 35, 35, 0.85); 
-  }
-
-  .dreambeats__nowPlaying-hybrid {
-    gap: 10px;
+    bottom: 100px;
   }
 
   .dreambeats__nowPlaying-hybrid-content {
-    padding-right: 10px; 
-  }
-}
-
-@media screen and (min-width: 390px) and (max-width: 428px) and (min-height: 844px) {
-  .dreambeats__controls {
-    padding-bottom: 25px; 
+    padding-right: 10px;
   }
 }
 
@@ -165,4 +184,4 @@
     pointer-events: none;
     transform: translateY(20px);
   }
-} 
+}

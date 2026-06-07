@@ -1,15 +1,10 @@
-:root {
-  --color-primary: rgb(35,35,35,88%);
-  --color-secondary: #7B777A;
-}
-
 .dreambeats__musicControls {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
+  top: var(--space-5);
+  right: var(--space-5);
+  z-index: var(--z-overlay);
   opacity: 1;
-  transition: opacity 0.3s ease-out;
+  transition: opacity var(--transition-base), transform var(--transition-base);
 }
 
 .dreambeats__musicControls.hidden {
@@ -25,63 +20,95 @@
 .dreambeats__musicControls-wrapper {
   display: flex;
   align-items: center;
-  gap: 26px;
+  gap: var(--space-4);
+}
+
+.dreambeats__musicControls-stack {
+  position: relative;
 }
 
 .dreambeats__musicControls-container {
   position: relative;
   display: flex;
-  flex-direction: column;
-  background-color: var(--color-primary);
-  width: 255px;
+  min-height: 44px;
+  width: 272px;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02)),
+    rgba(18, 18, 18, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-pill);
+  box-shadow:
+    0 18px 36px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px) saturate(1.1);
+  overflow: visible;
 }
 
 .dreambeats__musicControls-container.show-volume {
-  animation: unround-corners 200ms forwards;
+  border-radius: var(--radius-pill);
 }
 
 .dreambeats__musicControls-buttons {
   display: flex;
   align-items: center;
-  justify-content: center;
-  column-gap: 24px;
-  margin: 6px 0 6px;
+  justify-content: space-between;
+  column-gap: 8px;
+  margin: 0;
+  padding: 4px 12px;
+  width: 100%;
 }
 
 .dreambeats__musicControls-button {
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
   display: flex;
   align-items: center;
   justify-content: center;
-  col
-  transition: transform 0.2s ease;
+  min-height: 34px;
+  min-width: 34px;
+  padding: 0;
+  transition:
+    background var(--transition-base),
+    box-shadow var(--transition-base),
+    transform var(--transition-base);
 }
 
 .dreambeats__musicControls-button:hover {
-  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.11);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  transform: translateY(-1px);
+}
+
+.dreambeats__musicControls-button:active {
+  transform: translateY(0);
 }
 
 .dreambeats__musicControls_volume-slider {
-    position: absolute;
-    background-color: var(--color-primary);
-    border-radius: 0 0 10px 10px;
-    width: 255px;
-    top:32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: slide-down-volume 200ms;
-    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  position: absolute;
+  background: rgba(18, 18, 18, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px;
+  width: calc(100% - 34px);
+  top: 52px;
+  left: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: slide-down-volume 180ms ease;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.26);
+  padding: 8px 0;
+  backdrop-filter: blur(16px);
 }
 
 .dreambeats__musicControls-volume {
   width: 80%;
   height: 4px;
   -webkit-appearance: none;
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--color-surface-soft);
   border-radius: 2px;
   outline: none;
 }
@@ -90,7 +117,7 @@
   -webkit-appearance: none;
   width: 12px;
   height: 12px;
-  background: white;
+  background: var(--color-text);
   border-radius: 50%;
   cursor: pointer;
 }
@@ -98,7 +125,7 @@
 .dreambeats__musicControls-volume::-moz-range-thumb {
   width: 12px;
   height: 12px;
-  background: white;
+  background: var(--color-text);
   border-radius: 50%;
   cursor: pointer;
   border: none;
@@ -113,17 +140,6 @@
   }
 }
 
-@keyframes unround-corners {
-  from {
-    border-bottom-right-radius: 10px;
-    border-bottom-left-radius: 10px;
-  }
-  to {
-    border-bottom-right-radius: 0px;
-    border-bottom-left-radius: 0px;
-  }
-}
-
 .visible {
   transform: translateY(0);
   opacity: 1;
@@ -135,18 +151,17 @@
   pointer-events: none;
 }
 
-/* Ajout de media queries pour mobile */
 @media screen and (max-width: 768px) {
   .dreambeats__musicControls {
     right: 50%;
     transform: translateX(50%);
     width: 100%;
-    max-width: 300px;
+    max-width: 292px;
   }
 
   .dreambeats__musicControls-buttons {
-    gap: 16px;
-    padding: 0 5px;
+    gap: 6px;
+    padding: 4px 10px;
   }
   
   .dreambeats__musicControls-wrapper {
@@ -155,6 +170,7 @@
   
   .dreambeats__musicControls-container {
     width: 100%;
+    min-height: 44px;
   }
 }
 
