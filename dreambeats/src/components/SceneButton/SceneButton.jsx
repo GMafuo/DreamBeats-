@@ -1,4 +1,3 @@
-import React from 'react';
 import { MdPhotoLibrary } from "react-icons/md";
 import './SceneButton.css';
 

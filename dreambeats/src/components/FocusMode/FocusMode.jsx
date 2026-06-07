@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { IoRefreshOutline, IoExpand, IoPlay, IoPause, IoPencilOutline, IoSaveOutline } from 'react-icons/io5';
+import { useState, useEffect, useCallback } from 'react';
+import { IoRefreshOutline, IoPlay, IoPause, IoPencilOutline, IoSaveOutline } from 'react-icons/io5';
 import { IoHeartOutline, IoHeart } from 'react-icons/io5';
 import './FocusMode.css';
-import { useAppContext } from '../../context/AppContext';
+import { useAppContext } from '../../context/useAppContext';
 import { QUOTES } from '../../data/quotes';
 
 const BASE_PATH = import.meta.env.PROD ? '/DreamBeats-' : '';
@@ -22,13 +22,11 @@ const FocusMode = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [focusText, setFocusText] = useState(localStorage.getItem('focusText') || 'Creating my dreams');
   const [isEditingFocus, setIsEditingFocus] = useState(false);
-  const [quote, setQuote] = useState(QUOTES[new Date().getDate() % QUOTES.length]);
+  const [quote] = useState(QUOTES[new Date().getDate() % QUOTES.length]);
   const [audio] = useState(new Audio(notificationSound));
 
   const FOCUS_TIME = focusTime * 60;
   const BREAK_TIME = shortBreakTime * 60;
-  const isBreak = mode === 'break';
-
   const formatTime = useCallback((seconds) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -83,7 +81,7 @@ const FocusMode = () => {
     const fluidCanvas = document.createElement('canvas');
     fluidCanvas.id = 'fluid-canvas';
     
-    const ctx = fluidCanvas.getContext('webgl2', {
+    fluidCanvas.getContext('webgl2', {
       alpha: false,
       antialias: false,
       depth: false,
@@ -107,12 +105,20 @@ const FocusMode = () => {
 
     window.getFluidCanvas = () => fluidCanvas;
     
+    let isCancelled = false;
+    let loadedScripts = [];
+
     const loadScript = (src) => {
       return new Promise((resolve, reject) => {
         if (src.includes('script.js')) {
           fetch(src)
             .then(response => response.text())
             .then(content => {
+              if (isCancelled) {
+                resolve(null);
+                return;
+              }
+
               const script = document.createElement('script');
               // Ajout des optimisations dans le script
               const optimizedContent = content.replace(
@@ -133,33 +139,59 @@ const FocusMode = () => {
                 })();
               `;
               document.body.appendChild(script);
+              loadedScripts.push(script);
               resolve(script);
             })
             .catch(reject);
         } else {
           const script = document.createElement('script');
           script.src = src;
-          script.onload = () => resolve(script);
+          script.onload = () => {
+            if (isCancelled) {
+              script.remove();
+              resolve(null);
+              return;
+            }
+
+            resolve(script);
+          };
           script.onerror = reject;
           document.body.appendChild(script);
+          loadedScripts.push(script);
         }
       });
     };
 
-    let loadedScripts = [];
     Promise.all([loadScript(datGuiPath), loadScript(`${BASE_PATH}/assets/script.js`)])
-      .then(scripts => loadedScripts = scripts)
+      .then(scripts => {
+        const mountedScripts = scripts.filter(Boolean);
+
+        if (isCancelled) {
+          mountedScripts.forEach(script => script.remove());
+          return;
+        }
+
+        loadedScripts = mountedScripts;
+      })
       .catch(error => console.error('💥 Erreur de chargement:', error));
 
     return () => {
+      isCancelled = true;
       window.removeEventListener('resize', adjustResolution);
       loadedScripts.forEach(script => script?.parentNode?.removeChild(script));
       fluidCanvas?.parentNode?.removeChild(fluidCanvas);
-      delete window.getFluidCanvas;
-      delete window.canvas;
-      if (window.fluidSimulation) {
+
+      if (window.getFluidCanvas?.() === fluidCanvas) {
+        delete window.getFluidCanvas;
+      }
+
+      if (window.canvas === fluidCanvas && window.fluidSimulation) {
         window.fluidSimulation.cleanup();
         delete window.fluidSimulation;
+      }
+
+      if (window.canvas === fluidCanvas) {
+        delete window.canvas;
       }
       const gl = fluidCanvas.getContext('webgl') || fluidCanvas.getContext('webgl2');
       gl?.getExtension('WEBGL_lose_context')?.loseContext();
@@ -252,7 +284,7 @@ const FocusMode = () => {
         {renderHearts()}
       </div>
 
-      <div className="focus-title">I'm focusing on</div>
+      <div className="focus-title">I&apos;m focusing on</div>
       {isEditingFocus ? (
         <input
           type="text"

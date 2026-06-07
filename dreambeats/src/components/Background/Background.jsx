@@ -1,38 +1,50 @@
 import { useEffect, useState, useRef } from 'react';
-import { useAppContext } from '../../context/AppContext';
+import { useAppContext } from '../../context/useAppContext';
 import './Background.css';
 
 const Background = () => {
-  const { getCurrentScene, currentSceneIndex, isLoading, setIsLoading } = useAppContext();
+  const { getCurrentScene, getSceneByIndex, currentSceneIndex, isLoading, setIsLoading } = useAppContext();
   const [videoPath, setVideoPath] = useState('');
   const [imgPath, setImgPath] = useState('');
   const videoRef = useRef(null);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const preloadLinksRef = useRef(new Map());
 
   // Préchargement de la vidéo suivante
   const preloadNextVideo = (nextVideoPath) => {
+    if (!nextVideoPath || preloadLinksRef.current.has(nextVideoPath)) return;
+
     const preloadLink = document.createElement('link');
     preloadLink.rel = 'preload';
     preloadLink.as = 'video';
     preloadLink.href = nextVideoPath;
     document.head.appendChild(preloadLink);
+    preloadLinksRef.current.set(nextVideoPath, preloadLink);
   };
 
   useEffect(() => {
     setIsLoading(true);
+    setIsVideoLoaded(false);
     const currentScene = getCurrentScene();
-    const nextScene = getCurrentScene(currentSceneIndex + 1);
+    const nextScene = getSceneByIndex(currentSceneIndex + 1);
 
     // Précharger la vidéo actuelle et la suivante
     if (currentScene) {
       setVideoPath(currentScene.video);
       setImgPath(currentScene.image);
       
-      if (nextScene) {
-        preloadNextVideo(nextScene.video);
-      }
+      preloadNextVideo(nextScene?.video);
     }
-  }, [currentSceneIndex, getCurrentScene, setIsLoading]);
+  }, [currentSceneIndex, getCurrentScene, getSceneByIndex, setIsLoading]);
+
+  useEffect(() => {
+    const preloadLinks = preloadLinksRef.current;
+
+    return () => {
+      preloadLinks.forEach((link) => link.remove());
+      preloadLinks.clear();
+    };
+  }, []);
 
   const handleVideoLoad = () => {
     setIsVideoLoaded(true);

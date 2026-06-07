@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { IoMusicalNotes, IoTimer, IoSettingsSharp } from "react-icons/io5";
 import { RiFullscreenFill, RiFullscreenExitFill } from "react-icons/ri";
 import { useFullscreen } from '../../hooks/useFullscreen';
-import { useAppContext } from '../../context/AppContext';
+import { useAppContext } from '../../context/useAppContext';
 import Settings from '../Settings/Settings';
 import './ModeToggle.css';
 

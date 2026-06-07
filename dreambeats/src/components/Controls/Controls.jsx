@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   BsFillSkipBackwardFill,
   BsSkipForwardFill,
@@ -16,7 +16,6 @@ import YouTubePlayer from '../YouTubePlayer/YouTubePlayer';
 import { YOUTUBE_STREAMS, getNextStream, getPreviousStream } from '../../config/youtubeStreams';
 import './Controls.css';
 import NowPlaying from '../NowPlaying/NowPlaying';
-import { RiFullscreenFill, RiFullscreenExitFill } from "react-icons/ri";
 import Clock from '../Clock/Clock';
 import SceneButton from '../SceneButton/SceneButton';
 import SceneSelector from '../SceneSelector/SceneSelector';
@@ -36,7 +35,6 @@ const Controls = () => {
   const [timer, setTimer] = useState(null);
   const [player, setPlayer] = useState(null);
   const [currentStreamId, setCurrentStreamId] = useState(YOUTUBE_STREAMS[0].id);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const [showScenes, setShowScenes] = useState(false);
   const [hideNowPlaying, setHideNowPlaying] = useState(false);
 
@@ -161,27 +159,6 @@ const Controls = () => {
     };
   }, [showVolume]);
 
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-      setIsFullscreen(true);
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-        setIsFullscreen(false);
-      }
-    }
-  };
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
-
   const handleToggleScenes = () => {
     setShowScenes(!showScenes);
   };
@@ -223,7 +200,6 @@ const Controls = () => {
           <div className="dreambeats__musicControls-container">
             <YouTubePlayer 
               onPlayerReady={handlePlayerReady} 
-              isPlaying={isPlaying}
               currentStreamId={currentStreamId}
             />
             <div className={`dreambeats__musicControls-container ${showVolume ? 'show-volume' : ''}`}>

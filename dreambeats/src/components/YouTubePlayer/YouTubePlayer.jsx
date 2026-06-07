@@ -1,8 +1,14 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { YOUTUBE_STREAMS } from '../../config/youtubeStreams';
 
-const YouTubePlayer = ({ onPlayerReady, isPlaying, currentStreamId, onStreamChange }) => {
+const YouTubePlayer = ({ onPlayerReady, currentStreamId }) => {
   const playerRef = useRef(null);
+  const initialStreamIdRef = useRef(currentStreamId || YOUTUBE_STREAMS[0].id);
+  const onPlayerReadyRef = useRef(onPlayerReady);
+
+  useEffect(() => {
+    onPlayerReadyRef.current = onPlayerReady;
+  }, [onPlayerReady]);
 
   useEffect(() => {
     const initializePlayer = () => {
@@ -11,7 +17,7 @@ const YouTubePlayer = ({ onPlayerReady, isPlaying, currentStreamId, onStreamChan
       playerRef.current = new window.YT.Player('youtube-player', {
         height: '0',
         width: '0',
-        videoId: currentStreamId || YOUTUBE_STREAMS[0].id,
+        videoId: initialStreamIdRef.current,
         playerVars: {
           autoplay: 1,
           controls: 0,
@@ -25,8 +31,7 @@ const YouTubePlayer = ({ onPlayerReady, isPlaying, currentStreamId, onStreamChan
         },
         events: {
           onReady: (event) => {
-            console.log('YouTube Player Ready');
-            onPlayerReady(event.target);
+            onPlayerReadyRef.current?.(event.target);
           },
           onError: (error) => {
             console.error('YouTube Player Error:', error);
@@ -61,7 +66,7 @@ const YouTubePlayer = ({ onPlayerReady, isPlaying, currentStreamId, onStreamChan
         playerRef.current = null;
       }
     };
-  }, [onPlayerReady, currentStreamId]);
+  }, []);
 
   return <div id="youtube-player" />;
 };

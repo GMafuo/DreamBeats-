@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './SceneSelector.css';
 import { SCENES } from '../../config/scenes';
-import { useAppContext } from '../../context/AppContext';
+import { useAppContext } from '../../context/useAppContext';
 import { IoChevronBackOutline, IoChevronForwardOutline } from 'react-icons/io5';
 
-const SceneSelector = ({ isVisible, onVisibilityChange }) => {
+const SceneSelector = ({ isVisible = false, onVisibilityChange = () => {} }) => {
   const { getCurrentScene, setCurrentSceneIndex } = useAppContext();
   const [startIndex, setStartIndex] = useState(0);
   const currentScene = getCurrentScene();
@@ -70,11 +70,6 @@ const SceneSelector = ({ isVisible, onVisibilityChange }) => {
       )}
     </div>
   );
-};
-
-SceneSelector.defaultProps = {
-  isVisible: false,
-  onVisibilityChange: () => {}
 };
 
 export default SceneSelector; 

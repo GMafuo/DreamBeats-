@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './NowPlaying.css';
 import { YOUTUBE_STREAMS } from '../../config/youtubeStreams';
 
@@ -43,10 +43,6 @@ const NowPlaying = ({ currentStreamId, hideOnMobile = false }) => {
       </div>
     </div>
   );
-};
-
-NowPlaying.defaultProps = {
-  hideOnMobile: false
 };
 
 export default NowPlaying; 

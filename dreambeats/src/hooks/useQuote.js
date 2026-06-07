@@ -32,7 +32,7 @@ export const useQuote = () => {
         localStorage.setItem('quoteDate', today);
         
         setQuote(quoteData);
-      } catch (err) {
+      } catch {
         setError('Failed to fetch quote');
         // Utilise une citation de secours en cas d'erreur
         setQuote({

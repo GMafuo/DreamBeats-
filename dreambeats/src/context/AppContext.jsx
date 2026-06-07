@@ -1,7 +1,6 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback } from 'react';
+import { AppContext } from './contextStore';
 import { SCENES } from '../config/scenes';
-
-const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
@@ -18,28 +17,32 @@ export const AppProvider = ({ children }) => {
     Number(localStorage.getItem('shortBreakTime')) || 5
   );
 
-  const getCurrentScene = useCallback(() => {
-    return SCENES[currentSceneIndex];
-  }, [currentSceneIndex]);
+  const getSceneByIndex = useCallback((index) => {
+    return SCENES[((index % SCENES.length) + SCENES.length) % SCENES.length];
+  }, []);
 
-  const updateClockFormat = (format) => {
+  const getCurrentScene = useCallback(() => {
+    return getSceneByIndex(currentSceneIndex);
+  }, [currentSceneIndex, getSceneByIndex]);
+
+  const updateClockFormat = useCallback((format) => {
     setClockFormat(format);
     localStorage.setItem('clockFormat', format);
-  };
+  }, []);
 
-  const updateFocusTime = (time) => {
+  const updateFocusTime = useCallback((time) => {
     setFocusTime(time);
     localStorage.setItem('focusTime', time.toString());
-  };
+  }, []);
 
-  const updateShortBreakTime = (time) => {
+  const updateShortBreakTime = useCallback((time) => {
     setShortBreakTime(time);
     localStorage.setItem('shortBreakTime', time.toString());
-  };
+  }, []);
 
-  return (
-    <AppContext.Provider value={{ 
+  const value = useMemo(() => ({ 
       getCurrentScene, 
+      getSceneByIndex,
       currentSceneIndex, 
       setCurrentSceneIndex,
       isLoading,
@@ -52,10 +55,23 @@ export const AppProvider = ({ children }) => {
       updateClockFormat,
       updateFocusTime,
       updateShortBreakTime,
-    }}>
+    }), [
+      getCurrentScene,
+      getSceneByIndex,
+      currentSceneIndex,
+      isLoading,
+      appMode,
+      clockFormat,
+      focusTime,
+      shortBreakTime,
+      updateClockFormat,
+      updateFocusTime,
+      updateShortBreakTime,
+    ]);
+
+  return (
+    <AppContext.Provider value={value}>
       {children}
     </AppContext.Provider>
   );
 };
-
-export const useAppContext = () => useContext(AppContext); 
