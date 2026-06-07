@@ -1143,9 +1143,14 @@ multipleSplats(parseInt(Math.random() * 20) + 5);
 
 let lastUpdateTime = Date.now();
 let colorUpdateTimer = 0.0;
+let animationFrameId = null;
+let isDisposed = false;
 update();
 
 function update () {
+    if (isDisposed)
+        return;
+
     const dt = calcDeltaTime();
     if (resizeCanvas())
         initFramebuffers();
@@ -1154,7 +1159,7 @@ function update () {
     if (!config.PAUSED)
         step(dt);
     render(null);
-    requestAnimationFrame(update);
+    animationFrameId = requestAnimationFrame(update);
 }
 
 function calcDeltaTime () {
@@ -1433,28 +1438,28 @@ function correctRadius (radius) {
     return radius;
 }
 
-canvas.addEventListener('mousedown', e => {
+const handleMouseDown = e => {
     let posX = scaleByPixelRatio(e.offsetX);
     let posY = scaleByPixelRatio(e.offsetY);
     let pointer = pointers.find(p => p.id == -1);
     if (pointer == null)
         pointer = new pointerPrototype();
     updatePointerDownData(pointer, -1, posX, posY);
-});
+};
 
-canvas.addEventListener('mousemove', e => {
+const handleMouseMove = e => {
     let pointer = pointers[0];
     if (!pointer.down) return;
     let posX = scaleByPixelRatio(e.offsetX);
     let posY = scaleByPixelRatio(e.offsetY);
     updatePointerMoveData(pointer, posX, posY);
-});
+};
 
-window.addEventListener('mouseup', () => {
+const handleMouseUp = () => {
     updatePointerUpData(pointers[0]);
-});
+};
 
-canvas.addEventListener('touchstart', e => {
+const handleTouchStart = e => {
     e.preventDefault();
     const touches = e.targetTouches;
     while (touches.length >= pointers.length)
@@ -1464,9 +1469,9 @@ canvas.addEventListener('touchstart', e => {
         let posY = scaleByPixelRatio(touches[i].pageY);
         updatePointerDownData(pointers[i + 1], touches[i].identifier, posX, posY);
     }
-});
+};
 
-canvas.addEventListener('touchmove', e => {
+const handleTouchMove = e => {
     e.preventDefault();
     const touches = e.targetTouches;
     for (let i = 0; i < touches.length; i++) {
@@ -1476,9 +1481,9 @@ canvas.addEventListener('touchmove', e => {
         let posY = scaleByPixelRatio(touches[i].pageY);
         updatePointerMoveData(pointer, posX, posY);
     }
-}, false);
+};
 
-window.addEventListener('touchend', e => {
+const handleTouchEnd = e => {
     const touches = e.changedTouches;
     for (let i = 0; i < touches.length; i++)
     {
@@ -1486,14 +1491,35 @@ window.addEventListener('touchend', e => {
         if (pointer == null) continue;
         updatePointerUpData(pointer);
     }
-});
+};
 
-window.addEventListener('keydown', e => {
+const handleKeyDown = e => {
     if (e.code === 'KeyP')
         config.PAUSED = !config.PAUSED;
-    if (e.key === ' ')
-        splatStack.push(parseInt(Math.random() * 20) + 5);
-});
+};
+
+canvas.addEventListener('mousedown', handleMouseDown);
+canvas.addEventListener('mousemove', handleMouseMove);
+window.addEventListener('mouseup', handleMouseUp);
+canvas.addEventListener('touchstart', handleTouchStart);
+canvas.addEventListener('touchmove', handleTouchMove, false);
+window.addEventListener('touchend', handleTouchEnd);
+window.addEventListener('keydown', handleKeyDown);
+
+window.fluidSimulation = {
+    cleanup () {
+        isDisposed = true;
+        if (animationFrameId !== null)
+            cancelAnimationFrame(animationFrameId);
+        canvas.removeEventListener('mousedown', handleMouseDown);
+        canvas.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+        canvas.removeEventListener('touchstart', handleTouchStart);
+        canvas.removeEventListener('touchmove', handleTouchMove, false);
+        window.removeEventListener('touchend', handleTouchEnd);
+        window.removeEventListener('keydown', handleKeyDown);
+    }
+};
 
 function updatePointerDownData (pointer, id, posX, posY) {
     pointer.id = id;
